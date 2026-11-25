@@ -7,6 +7,29 @@ on:
 jobs:
   check:
     runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: zelafin
+          POSTGRES_PASSWORD: zelafin
+          POSTGRES_DB: zelafin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U zelafin -d zelafin"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://zelafin:zelafin@localhost:5432/zelafin
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: ci-admin-password
+      SESSION_SECRET: ci-session-secret-with-at-least-32-chars
+      LOG_LEVEL: silent
+
     steps:
       - uses: actions/checkout@v7.0.1
 
@@ -24,5 +47,7 @@ jobs:
       - run: pnpm lint
 
       - run: pnpm typecheck
+
+      - run: pnpm db:migrate
 
       - run: pnpm test
