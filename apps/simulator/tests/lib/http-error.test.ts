@@ -36,7 +36,7 @@ describe('toErrorResponse', () => {
   });
 
   it('maps domain codes to HTTP status', () => {
-    expect(toErrorResponse(new NotFoundError('Simulação')).status).toBe(404);
+    expect(toErrorResponse(new NotFoundError('Simulação não encontrada.')).status).toBe(404);
     expect(toErrorResponse(new SimulationExpiredError()).status).toBe(410);
     expect(toErrorResponse(new OfferNotAvailableError()).status).toBe(409);
   });

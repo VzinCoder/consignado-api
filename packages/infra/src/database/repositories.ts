@@ -6,6 +6,7 @@ import type {
   CustomerInput,
   CustomerRepository,
   NewSimulation,
+  Offer,
   Simulation,
   SimulationDetails,
   SimulationListFilter,
@@ -36,28 +37,29 @@ type BankResultRow = typeof bankResults.$inferSelect;
 const toCustomer = (row: CustomerRow): Customer => ({ ...row });
 const toSimulation = (row: SimulationRow): Simulation => ({ ...row });
 
+/** The offer columns are nullable: only an APPROVED row with all of them filled has an offer. */
+function offerOf(row: BankResultRow): Offer | null {
+  const { monthlyRate, approvedAmountCents, installmentCents, totalCents, termMonths } = row;
+  if (
+    row.status !== 'APPROVED' ||
+    monthlyRate === null ||
+    approvedAmountCents === null ||
+    installmentCents === null ||
+    totalCents === null ||
+    termMonths === null
+  ) {
+    return null;
+  }
+  return { monthlyRate, approvedAmountCents, installmentCents, totalCents, termMonths };
+}
+
 function toBankResult(row: BankResultRow): BankResult {
-  const hasOffer =
-    row.status === 'APPROVED' &&
-    row.monthlyRate !== null &&
-    row.approvedAmountCents !== null &&
-    row.installmentCents !== null &&
-    row.totalCents !== null &&
-    row.termMonths !== null;
   return {
     id: row.id,
     simulationId: row.simulationId,
     bankSlug: row.bankSlug,
     status: row.status,
-    offer: hasOffer
-      ? {
-          monthlyRate: row.monthlyRate ?? 0,
-          approvedAmountCents: row.approvedAmountCents ?? 0,
-          installmentCents: row.installmentCents ?? 0,
-          totalCents: row.totalCents ?? 0,
-          termMonths: row.termMonths ?? 0,
-        }
-      : null,
+    offer: offerOf(row),
     rejectionReason: row.rejectionReason,
     failureReason: row.failureReason,
     startedAt: row.startedAt,

@@ -8,7 +8,7 @@ export const MAX_AMOUNT_CENTS = 15_000_000;
 export const MIN_TERM_MONTHS = 6;
 export const MAX_TERM_MONTHS = 96;
 
-const CENTS_PER_REAL = 100;
+export const CENTS_PER_REAL = 100;
 
 export function maxInstallmentCents(salaryCents: number): number {
   return Math.floor(salaryCents * MARGIN_RATIO);

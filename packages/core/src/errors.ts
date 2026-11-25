@@ -1,3 +1,7 @@
+import { MARGIN_RATIO } from './rules/loan';
+
+const PERCENT = 100;
+
 /** Business errors carry a stable `code`; apps translate them to HTTP in one place. */
 export abstract class DomainError extends Error {
   abstract readonly code: string;
@@ -17,15 +21,19 @@ export class MarginExceededError extends DomainError {
     readonly maxAmountCents: number,
     readonly maxInstallmentCents: number,
   ) {
-    super('A parcela passa de 35% do salário.');
+    super(`A parcela passa de ${Math.round(MARGIN_RATIO * PERCENT)}% do salário.`);
     this.name = 'MarginExceededError';
   }
 }
 
+export const SIMULATION_NOT_FOUND = 'Simulação não encontrada.';
+export const BANK_RESULT_NOT_FOUND = 'Resposta do banco não encontrada.';
+
+/** Takes the whole sentence, so each entity keeps its own grammar. */
 export class NotFoundError extends DomainError {
   readonly code = 'NOT_FOUND';
-  constructor(entity: string) {
-    super(`${entity} não encontrada.`);
+  constructor(message: string) {
+    super(message);
     this.name = 'NotFoundError';
   }
 }

@@ -1,4 +1,5 @@
 import {
+  SIMULATION_NOT_FOUND,
   InterestAlreadyRegisteredError,
   MarginExceededError,
   NotFoundError,
@@ -128,7 +129,7 @@ export class SimulationService {
   /** Creates a fresh simulation with the same customer and loan data (e.g. after expiration). */
   async renew(id: string): Promise<{ id: string }> {
     const previous = await this.deps.simulations.findById(id);
-    if (!previous) throw new NotFoundError('Simulação');
+    if (!previous) throw new NotFoundError(SIMULATION_NOT_FOUND);
     const { simulation } = previous;
 
     const now = this.deps.clock.now();
@@ -167,14 +168,14 @@ export class SimulationService {
   async getPublic(id: string): Promise<PublicSimulationView> {
     const now = await this.releaseStalePending(id);
     const details = await this.deps.simulations.findDetails(id);
-    if (!details) throw new NotFoundError('Simulação');
+    if (!details) throw new NotFoundError(SIMULATION_NOT_FOUND);
     return this.views.publicView(details, details.customer.name, now);
   }
 
   async registerInterest(id: string, bankSlug: string): Promise<PublicSimulationView> {
     const now = await this.releaseStalePending(id);
     const details = await this.deps.simulations.findDetails(id);
-    if (!details) throw new NotFoundError('Simulação');
+    if (!details) throw new NotFoundError(SIMULATION_NOT_FOUND);
     if (isExpired(details.simulation, now)) throw new SimulationExpiredError();
 
     const result = details.results.find((r) => r.bankSlug === bankSlug);
@@ -205,7 +206,7 @@ export class SimulationService {
   async getDetails(id: string): Promise<AdminSimulationView> {
     const now = await this.releaseStalePending(id);
     const details = await this.deps.simulations.findDetails(id);
-    if (!details) throw new NotFoundError('Simulação');
+    if (!details) throw new NotFoundError(SIMULATION_NOT_FOUND);
     return this.views.adminView(details, now);
   }
 

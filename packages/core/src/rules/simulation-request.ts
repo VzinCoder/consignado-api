@@ -8,6 +8,7 @@ import {
   MIN_AMOUNT_CENTS,
   MIN_SALARY_CENTS,
   MIN_TERM_MONTHS,
+  CENTS_PER_REAL,
 } from './loan';
 
 const MIN_NAME_LETTERS = 3;
@@ -15,7 +16,7 @@ const PHONE_LENGTHS = [10, 11];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const brl = (cents: number) =>
-  (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  (cents / CENTS_PER_REAL).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export interface LoanTerms {
   salaryCents: number;

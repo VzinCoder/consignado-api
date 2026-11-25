@@ -1,5 +1,6 @@
 import { DomainError, MarginExceededError, ValidationError } from '@zelafin/core';
 import type { z } from 'zod';
+import { formatMoney } from './format';
 
 /** The only place where errors become HTTP. Body: { error: { code, message, fields? } }. */
 
@@ -14,9 +15,6 @@ const STATUS_BY_CODE: Record<string, number> = {
   BANK_RESULT_NOT_RETRYABLE: 409,
   UNAUTHORIZED: 401,
 };
-
-const brl = (cents: number) =>
-  (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export interface ErrorBody {
   error: { code: string; message: string; fields?: Record<string, string> };
@@ -51,7 +49,7 @@ export function toErrorResponse(
     });
   }
   if (error instanceof MarginExceededError) {
-    const message = `O valor pedido passa do limite para o seu salário. Você pode simular até ${brl(error.maxAmountCents)}.`;
+    const message = `O valor pedido passa do limite para o seu salário. Você pode simular até ${formatMoney(error.maxAmountCents)}.`;
     return errorJson(422, {
       error: { code: error.code, message, fields: { requestedAmountCents: message } },
     });

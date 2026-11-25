@@ -1,6 +1,8 @@
-import { BUSINESS_TIME_ZONE } from '@zelafin/core';
+import { BUSINESS_TIME_ZONE, CENTS_PER_REAL, onlyDigits } from '@zelafin/core';
 
-const CENTS_PER_REAL = 100;
+// Same digit rule as the core validation (masks and validation never disagree).
+export { onlyDigits };
+
 const PERCENT = 100;
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -12,9 +14,7 @@ export const formatRate = (rate: number) =>
   `${(rate * PERCENT).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% a.m.`;
 
 /** Money input: typed digits are cents ("350000" -> R$ 3.500,00). */
-export const digitsToCents = (value: string) => Number(value.replace(/\D/g, '') || '0');
-
-export const onlyDigits = (value: string) => value.replace(/\D/g, '');
+export const digitsToCents = (value: string) => Number(onlyDigits(value) || '0');
 
 export function formatCpf(value: string): string {
   const d = onlyDigits(value).slice(0, 11);

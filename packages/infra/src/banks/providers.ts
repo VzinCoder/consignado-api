@@ -1,7 +1,7 @@
 import { BankIntegrationError, type BankQuote, type BankQuoteRequest } from '@zelafin/core';
 import { z } from 'zod';
 import { HttpBankProvider, toCents, toReais } from './base-provider';
-import type { HttpResponse } from './http-client';
+import { OUT_OF_CONTRACT, type HttpResponse } from './http-client';
 
 const PERCENT = 100;
 const BASIS_POINTS = 10_000;
@@ -100,7 +100,7 @@ export class MandacaruProvider extends HttpBankProvider<z.infer<typeof mandacaru
       return { outcome: 'REJECTED', reason: response.motivo, raw };
     }
     const monthlyRate = parseRateText(response.taxaMensal);
-    if (monthlyRate === null) throw new BankIntegrationError('resposta fora do contrato');
+    if (monthlyRate === null) throw new BankIntegrationError(OUT_OF_CONTRACT);
     return {
       outcome: 'APPROVED',
       offer: {

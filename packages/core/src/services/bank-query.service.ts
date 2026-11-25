@@ -1,4 +1,6 @@
 import {
+  BANK_RESULT_NOT_FOUND,
+  SIMULATION_NOT_FOUND,
   BankIntegrationError,
   BankResultNotRetryableError,
   NotFoundError,
@@ -38,7 +40,7 @@ export class BankQueryService {
     if (result?.status !== 'PENDING') return result;
 
     const details = await this.deps.simulations.findDetails(result.simulationId);
-    if (!details) throw new NotFoundError('Simulação');
+    if (!details) throw new NotFoundError(SIMULATION_NOT_FOUND);
 
     const startedAt = this.deps.clock.now();
     const elapsed = () => this.deps.clock.now().getTime() - startedAt.getTime();
@@ -108,9 +110,9 @@ export class BankQueryService {
   /** Manual retry by the admin: only FAILED results of non-expired simulations. */
   async retry(bankResultId: string): Promise<BankResult | null> {
     const result = await this.deps.bankResults.findById(bankResultId);
-    if (!result) throw new NotFoundError('Resposta do banco');
+    if (!result) throw new NotFoundError(BANK_RESULT_NOT_FOUND);
     const data = await this.deps.simulations.findById(result.simulationId);
-    if (!data) throw new NotFoundError('Simulação');
+    if (!data) throw new NotFoundError(SIMULATION_NOT_FOUND);
 
     const now = this.deps.clock.now();
     if (isExpired(data.simulation, now)) throw new SimulationExpiredError();

@@ -1,5 +1,6 @@
 import {
   BankIntegrationError,
+  CENTS_PER_REAL,
   type BankProvider,
   type BankQuote,
   type BankQuoteRequest,
@@ -13,7 +14,6 @@ export interface ProviderOptions {
   fetch?: FetchFn;
 }
 
-export const CENTS_PER_REAL = 100;
 export const toCents = (reais: number) => Math.round(reais * CENTS_PER_REAL);
 export const toReais = (cents: number) => cents / CENTS_PER_REAL;
 

@@ -1,5 +1,5 @@
 import 'server-only';
-import { NotFoundError } from '@zelafin/core';
+import { NotFoundError, SIMULATION_NOT_FOUND } from '@zelafin/core';
 import { getContainer } from '@zelafin/infra';
 import { z } from 'zod';
 import { toErrorResponse } from './http-error';
@@ -17,8 +17,8 @@ export async function readJson(request: Request): Promise<unknown> {
 }
 
 /** Ids are UUIDs; anything else cannot exist (and would make Postgres throw). */
-export function parseId(id: string, entity = 'Simulação'): string {
-  if (!z.uuid().safeParse(id).success) throw new NotFoundError(entity);
+export function parseId(id: string, notFoundMessage = SIMULATION_NOT_FOUND): string {
+  if (!z.uuid().safeParse(id).success) throw new NotFoundError(notFoundMessage);
   return id;
 }
 

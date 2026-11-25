@@ -1,4 +1,4 @@
-import { NotFoundError } from '@zelafin/core';
+import { BANK_RESULT_NOT_FOUND, NotFoundError } from '@zelafin/core';
 import { adminApiGuard } from '@/lib/admin-auth';
 import { getContainer, handle, parseId } from '@/lib/server';
 
@@ -11,9 +11,9 @@ export function POST(_request: Request, { params }: { params: Promise<{ id: stri
     const denied = await adminApiGuard();
     if (denied) return denied;
 
-    const id = parseId((await params).id, 'Resposta do banco');
+    const id = parseId((await params).id, BANK_RESULT_NOT_FOUND);
     const result = await getContainer().bankQueryService.retry(id);
-    if (!result) throw new NotFoundError('Resposta do banco');
+    if (!result) throw new NotFoundError(BANK_RESULT_NOT_FOUND);
     return Response.json({ status: result.status });
   });
 }
