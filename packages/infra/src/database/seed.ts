@@ -2,6 +2,7 @@
  * Development seed: replaces all data with fictional customers and simulations.
  * Dates are relative to "now" so the demo always has fresh and expired offers.
  */
+import { priceInstallmentCents } from '@zelafin/core';
 import { sql } from 'drizzle-orm';
 import { getEnv } from '../env';
 import { createDatabase } from './client';
@@ -21,15 +22,6 @@ const SEED_RATES: Record<BankSlug, number> = {
   jangada: 0.0189,
   carcara: 0.0215,
 };
-
-/** Temporary Price calculation; replaced by the core rule in the infra-adapters change. */
-function priceInstallmentCents(
-  principalCents: number,
-  monthlyRate: number,
-  months: number,
-): number {
-  return Math.round((principalCents * monthlyRate) / (1 - (1 + monthlyRate) ** -months));
-}
 
 function respondedAfter(startedAt: Date, durationMs: number) {
   return { startedAt, respondedAt: new Date(startedAt.getTime() + durationMs), durationMs };
