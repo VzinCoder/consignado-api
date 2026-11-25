@@ -107,6 +107,16 @@ describe('SimulationService.getPublic', () => {
     expect(view.results.find((r) => r.isBest)?.bankSlug).toBe('mandacaru');
   });
 
+  it('lists approved offers from the best to the worst, then the other banks', async () => {
+    const { simulationService, bankQueryService, provider } = setup();
+    provider('ipe').behavior = rejectingBehavior('Salário abaixo do mínimo');
+    const { id } = await simulationService.create(validRequest);
+    await bankQueryService.querySimulation(id);
+
+    const view = await simulationService.getPublic(id);
+    expect(view.results.map((r) => r.bankSlug)).toEqual(['mandacaru', 'jangada', 'carcara', 'ipe']);
+  });
+
   it('is PROCESSING while a bank is pending', async () => {
     const { simulationService } = setup();
     const { id } = await simulationService.create(validRequest);

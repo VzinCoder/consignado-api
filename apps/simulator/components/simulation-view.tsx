@@ -26,9 +26,6 @@ function validityText(simulation: PublicSimulation): string {
   return hours % HOURS_PER_DAY === 0 ? `${hours / HOURS_PER_DAY} dias` : `${hours} horas`;
 }
 
-const byTotal = (a: BankResultView, b: BankResultView) =>
-  (a.offer?.totalCents ?? 0) - (b.offer?.totalCents ?? 0);
-
 export function SimulationView({ id }: { id: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -91,7 +88,8 @@ export function SimulationView({ id }: { id: string }) {
   const simulation = query.data;
   const expired = simulation.status === 'EXPIRED';
   const processing = simulation.status === 'PROCESSING';
-  const approved = simulation.results.filter((r) => r.status === 'APPROVED').sort(byTotal);
+  // The API already sends approved offers from the best to the worst.
+  const approved = simulation.results.filter((r) => r.status === 'APPROVED');
   const others = simulation.results.filter((r) => r.status !== 'APPROVED');
   const subtitle = `${formatMoney(simulation.requestedAmountCents)} em ${simulation.termMonths} meses · simulação de ${
     expired ? formatShortDate(simulation.createdAt) : simulation.customerFirstName

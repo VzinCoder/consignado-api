@@ -9,7 +9,13 @@ import type {
   SimulationWithResults,
 } from '../models';
 import { maskCpf } from '../rules/documents';
-import { deriveStatus, isExpired, pickBestOffer } from '../rules/simulation';
+import {
+  compareOffers,
+  deriveStatus,
+  isApproved,
+  isExpired,
+  pickBestOffer,
+} from '../rules/simulation';
 
 export interface BankResultView {
   bankSlug: string;
@@ -95,9 +101,14 @@ export class ViewBuilder {
     return this.names.get(slug) ?? slug;
   }
 
+  /** Approved offers first, best to worst; then the other banks in the providers order. */
   private sorted(results: BankResult[]): BankResult[] {
     const position = (slug: string) => this.order.get(slug) ?? Number.MAX_SAFE_INTEGER;
-    return [...results].sort((a, b) => position(a.bankSlug) - position(b.bankSlug));
+    const approved = results.filter(isApproved).sort(compareOffers);
+    const others = results
+      .filter((r) => !isApproved(r))
+      .sort((a, b) => position(a.bankSlug) - position(b.bankSlug));
+    return [...approved, ...others];
   }
 
   private resultView(result: BankResult, bestSlug: string | null): BankResultView {
@@ -124,7 +135,7 @@ export class ViewBuilder {
 
   publicView(data: SimulationWithResults, customerName: string, now: Date): PublicSimulationView {
     const { simulation, results } = data;
-    const best = pickBestOffer(results);
+    const best = pickBestOffer(results, simulation);
     const bestSlug = best?.bankSlug ?? null;
     return {
       id: simulation.id,
@@ -195,7 +206,7 @@ export class ViewBuilder {
       expiresAt: simulation.expiresAt,
       interestAt: simulation.interestAt,
       chosenBank: this.summaryOf(chosen),
-      bestOffer: this.summaryOf(pickBestOffer(results)),
+      bestOffer: this.summaryOf(pickBestOffer(results, simulation)),
       counts,
       needsRetry: counts.FAILED > 0 && !isExpired(simulation, now),
     };

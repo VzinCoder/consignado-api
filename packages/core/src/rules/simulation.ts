@@ -37,13 +37,27 @@ export function isApproved(result: BankResult): result is ApprovedResult {
   return result.status === 'APPROVED' && result.offer !== null;
 }
 
-/** Lowest total paid wins; ties go to the lowest installment. */
-export function pickBestOffer(results: BankResult[]): ApprovedResult | null {
-  const approved = results.filter(isApproved);
-  approved.sort(
-    (a, b) =>
-      a.offer.totalCents - b.offer.totalCents ||
-      a.offer.installmentCents - b.offer.installmentCents,
+/** Lowest total paid first; ties go to the lowest installment. */
+export function compareOffers(a: ApprovedResult, b: ApprovedResult): number {
+  return (
+    a.offer.totalCents - b.offer.totalCents || a.offer.installmentCents - b.offer.installmentCents
   );
-  return approved[0] ?? null;
+}
+
+export type RequestedTerms = Pick<Simulation, 'requestedAmountCents' | 'termMonths'>;
+
+/** An offer for another amount or term is shown, but it is not comparable by total paid. */
+const matchesRequest = (result: ApprovedResult, request: RequestedTerms) =>
+  result.offer.approvedAmountCents === request.requestedAmountCents &&
+  result.offer.termMonths === request.termMonths;
+
+export function pickBestOffer(
+  results: BankResult[],
+  request: RequestedTerms,
+): ApprovedResult | null {
+  const comparable = results
+    .filter(isApproved)
+    .filter((r) => matchesRequest(r, request))
+    .sort(compareOffers);
+  return comparable[0] ?? null;
 }

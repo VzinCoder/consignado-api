@@ -47,15 +47,34 @@ describe('deriveStatus', () => {
 });
 
 describe('pickBestOffer', () => {
+  const request = { requestedAmountCents: 1_000_000, termMonths: 48 };
+
   it('picks the lowest total paid, then the lowest installment', () => {
-    const best = pickBestOffer([
-      result({ bankSlug: 'a', status: 'APPROVED', offer: offer(1_500_000, 31_000) }),
-      result({ bankSlug: 'b', status: 'APPROVED', offer: offer(1_400_000, 32_000) }),
-      result({ bankSlug: 'c', status: 'APPROVED', offer: offer(1_400_000, 30_000) }),
-      result({ bankSlug: 'd', status: 'REJECTED' }),
-    ]);
+    const best = pickBestOffer(
+      [
+        result({ bankSlug: 'a', status: 'APPROVED', offer: offer(1_500_000, 31_000) }),
+        result({ bankSlug: 'b', status: 'APPROVED', offer: offer(1_400_000, 32_000) }),
+        result({ bankSlug: 'c', status: 'APPROVED', offer: offer(1_400_000, 30_000) }),
+        result({ bankSlug: 'd', status: 'REJECTED' }),
+      ],
+      request,
+    );
     expect(best?.bankSlug).toBe('c');
-    expect(pickBestOffer([result({ status: 'FAILED' })])).toBeNull();
+    expect(pickBestOffer([result({ status: 'FAILED' })], request)).toBeNull();
+  });
+
+  it('ignores an approval for another amount or term (not comparable)', () => {
+    const smaller = { ...offer(900_000, 20_000), approvedAmountCents: 600_000 };
+    const shorter = { ...offer(1_100_000, 40_000), termMonths: 24 };
+    const best = pickBestOffer(
+      [
+        result({ bankSlug: 'partial', status: 'APPROVED', offer: smaller }),
+        result({ bankSlug: 'short', status: 'APPROVED', offer: shorter }),
+        result({ bankSlug: 'full', status: 'APPROVED', offer: offer(1_500_000, 31_000) }),
+      ],
+      request,
+    );
+    expect(best?.bankSlug).toBe('full');
   });
 });
 
