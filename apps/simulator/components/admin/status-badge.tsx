@@ -20,9 +20,23 @@ export function adminStatusLabel({ status, needsRetry }: Props): { label: string
   return { label: 'Respondida', tone: 'bg-accent text-primary' };
 }
 
+/**
+ * Main status plus a "Reconsultar" marker when a bank failed in a simulation whose main label is
+ * not already "Pendente" (e.g. an interested customer): the "Pendente" filter shows all of them.
+ */
 export function StatusBadge(props: Props) {
   const { label, tone } = adminStatusLabel(props);
-  return <Badge className={cn('rounded-full font-medium', tone)}>{label}</Badge>;
+  const extraRetryMarker = props.needsRetry && label !== 'Pendente';
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      <Badge className={cn('rounded-full font-medium', tone)}>{label}</Badge>
+      {extraRetryMarker && (
+        <Badge className="rounded-full bg-destructive-muted font-medium text-destructive">
+          Reconsultar
+        </Badge>
+      )}
+    </span>
+  );
 }
 
 export const STATUS_FILTERS = [

@@ -1,3 +1,4 @@
+import { ADMIN_LIST_LIMIT } from '@zelafin/core';
 import { ListFilter, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar } from '@/components/admin/avatar';
@@ -33,7 +34,8 @@ export default async function AdminSimulationsPage({
       <div>
         <h1 className="text-[28px] font-extrabold">Simulações</h1>
         <p className="text-sm text-muted-foreground">
-          {simulations.length} {simulations.length === 1 ? 'simulação' : 'simulações'} recentes
+          {simulations.length} {simulations.length === 1 ? 'simulação' : 'simulações'} · busca e
+          filtros entre as {ADMIN_LIST_LIMIT} mais recentes
         </p>
       </div>
 
