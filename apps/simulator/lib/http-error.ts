@@ -1,8 +1,10 @@
-import { DomainError, MarginExceededError, ValidationError } from '@zelafin/core';
-import type { z } from 'zod';
+import { z } from 'zod';
 import { formatMoney } from './format';
 
 /** The only place where errors become HTTP. Body: { error: { code, message, fields? } }. */
+
+const VALIDATION_CODE = 'VALIDATION_ERROR';
+const MARGIN_CODE = 'MARGIN_EXCEEDED';
 
 const STATUS_BY_CODE: Record<string, number> = {
   VALIDATION_ERROR: 422,
@@ -39,25 +41,45 @@ export function unauthorized(): Response {
   return errorJson(401, { error: { code: 'UNAUTHORIZED', message: 'Faça login para continuar.' } });
 }
 
+const stringRecord = z.record(z.string(), z.string());
+
+/**
+ * Domain errors are recognized by their stable code, not by `instanceof`: the container survives
+ * hot reload in `globalThis`, so its errors can come from another copy of @zelafin/core.
+ * Only known codes count, so a library error that also has a `code` (e.g. Postgres) stays a 500.
+ */
+function domainError(error: unknown): { code: string; status: number; message: string } | null {
+  if (!(error instanceof Error) || !('code' in error) || typeof error.code !== 'string') {
+    return null;
+  }
+  const status = STATUS_BY_CODE[error.code];
+  return status === undefined ? null : { code: error.code, status, message: error.message };
+}
+
 export function toErrorResponse(
   error: unknown,
   log: (message: string, context: Record<string, string>) => void = () => undefined,
 ): Response {
-  if (error instanceof ValidationError) {
+  const domain = domainError(error);
+  if (domain?.code === VALIDATION_CODE && error instanceof Error && 'fields' in error) {
+    const fields = stringRecord.safeParse(error.fields);
     return errorJson(422, {
-      error: { code: error.code, message: error.message, fields: error.fields },
+      error: {
+        code: domain.code,
+        message: domain.message,
+        fields: fields.success ? fields.data : {},
+      },
     });
   }
-  if (error instanceof MarginExceededError) {
-    const message = `O valor pedido passa do limite para o seu salário. Você pode simular até ${formatMoney(error.maxAmountCents)}.`;
+  if (domain?.code === MARGIN_CODE && error instanceof Error && 'maxAmountCents' in error) {
+    const max = typeof error.maxAmountCents === 'number' ? error.maxAmountCents : 0;
+    const message = `O valor pedido passa do limite para o seu salário. Você pode simular até ${formatMoney(max)}.`;
     return errorJson(422, {
-      error: { code: error.code, message, fields: { requestedAmountCents: message } },
+      error: { code: domain.code, message, fields: { requestedAmountCents: message } },
     });
   }
-  if (error instanceof DomainError) {
-    return errorJson(STATUS_BY_CODE[error.code] ?? 400, {
-      error: { code: error.code, message: error.message },
-    });
+  if (domain) {
+    return errorJson(domain.status, { error: { code: domain.code, message: domain.message } });
   }
   log('erro inesperado na API', { error: error instanceof Error ? error.message : String(error) });
   return errorJson(500, {

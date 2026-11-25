@@ -41,6 +41,18 @@ describe('toErrorResponse', () => {
     expect(toErrorResponse(new OfferNotAvailableError()).status).toBe(409);
   });
 
+  it('recognizes domain errors by code, even from another copy of the core module', () => {
+    const copy = Object.assign(new Error('Você já escolheu uma oferta.'), {
+      code: 'INTEREST_ALREADY_REGISTERED',
+    });
+    expect(toErrorResponse(copy).status).toBe(409);
+  });
+
+  it('keeps library errors with an unknown code as 500', () => {
+    const pgError = Object.assign(new Error('duplicate key'), { code: '23505' });
+    expect(toErrorResponse(pgError).status).toBe(500);
+  });
+
   it('hides unexpected errors behind a 500 and logs them', async () => {
     const logs: string[] = [];
     const response = toErrorResponse(new Error('db down'), (message) => logs.push(message));
