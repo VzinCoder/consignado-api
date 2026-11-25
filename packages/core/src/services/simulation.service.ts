@@ -14,6 +14,7 @@ import type {
   SimulationRepository,
 } from '../interfaces';
 import type { SimulationStatus } from '../models';
+import { BUSINESS_TIME_ZONE, startOfDay as startOfDayIn } from '../rules/calendar';
 import { checkMargin, type MarginCheck } from '../rules/loan';
 import {
   STALE_FAILURE_REASON,
@@ -210,8 +211,7 @@ export class SimulationService {
 
   async overview(): Promise<AdminOverview> {
     const now = await this.releaseStalePending();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
+    const startOfDay = startOfDayIn(now, BUSINESS_TIME_ZONE);
 
     const startOfYesterday = new Date(startOfDay.getTime() - DAY_MS);
 

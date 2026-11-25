@@ -284,6 +284,18 @@ describe('SimulationService admin reads', () => {
     expect(overview.interested.map((s) => s.id)).toEqual([first.id]);
   });
 
+  it('counts "today" in Brazil time, not in the server time zone', async () => {
+    const { simulationService, clock } = setup();
+    clock.set(new Date('2026-11-25T14:00:00Z')); // 11:00 in São Paulo
+    await simulationService.create(validRequest);
+    clock.set(new Date('2026-11-26T01:00:00Z')); // 22:00 of the same day in São Paulo
+    await simulationService.create({ ...validRequest, cpf: '11144477735' });
+
+    const overview = await simulationService.overview();
+    expect(overview.simulationsToday).toBe(2);
+    expect(overview.simulationsYesterday).toBe(0);
+  });
+
   it('flags simulations with a failed bank as needing retry', async () => {
     const { simulationService, bankQueryService, provider, second } = await seeded();
     provider('carcara').behavior = () => Promise.reject(new BankIntegrationError('HTTP 503'));

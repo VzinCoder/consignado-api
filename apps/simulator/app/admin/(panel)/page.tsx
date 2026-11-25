@@ -1,3 +1,4 @@
+import { BUSINESS_TIME_ZONE } from '@zelafin/core';
 import { FileText, HandHeart, Hourglass, MessageCircle, Plus, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar } from '@/components/admin/avatar';
@@ -23,6 +24,7 @@ const longDate = new Intl.DateTimeFormat('pt-BR', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
+  timeZone: BUSINESS_TIME_ZONE,
 });
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 

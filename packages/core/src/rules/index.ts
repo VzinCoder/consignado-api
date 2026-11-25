@@ -1,3 +1,4 @@
+export * from './calendar';
 export * from './documents';
 export * from './loan';
 export * from './simulation';

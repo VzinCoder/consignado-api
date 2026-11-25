@@ -1,3 +1,5 @@
+import { BUSINESS_TIME_ZONE } from '@zelafin/core';
+
 const CENTS_PER_REAL = 100;
 const PERCENT = 100;
 
@@ -39,7 +41,12 @@ export function formatPhone(value: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
-const shortDate = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' });
+// Dates always in Brazil time, so server and browser render the same text.
+const shortDate = new Intl.DateTimeFormat('pt-BR', {
+  day: 'numeric',
+  month: 'short',
+  timeZone: BUSINESS_TIME_ZONE,
+});
 export const formatShortDate = (iso: string) => shortDate.format(new Date(iso)).replace('.', '');
 
 const dateTime = new Intl.DateTimeFormat('pt-BR', {
@@ -47,6 +54,7 @@ const dateTime = new Intl.DateTimeFormat('pt-BR', {
   month: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
+  timeZone: BUSINESS_TIME_ZONE,
 });
 export const formatDateTime = (iso: string) => dateTime.format(new Date(iso));
 
@@ -67,5 +75,9 @@ export function formatRelative(date: Date, now: Date = new Date()): string {
   return days === 1 ? 'há 1 dia' : `há ${days} dias`;
 }
 
-const timeOnly = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const timeOnly = new Intl.DateTimeFormat('pt-BR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: BUSINESS_TIME_ZONE,
+});
 export const formatTime = (date: Date) => timeOnly.format(date);
