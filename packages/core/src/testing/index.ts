@@ -122,7 +122,8 @@ export class FakeSimulationRepository implements SimulationRepository {
         (d) =>
           !search ||
           d.customer.name.toLowerCase().includes(search) ||
-          (searchDigits !== '' && d.customer.cpf.includes(searchDigits)),
+          (searchDigits !== '' &&
+            (d.customer.cpf.includes(searchDigits) || d.customer.phone.includes(searchDigits))),
       )
       .sort((a, b) => b.simulation.createdAt.getTime() - a.simulation.createdAt.getTime());
     return Promise.resolve(rows.slice(0, filter.limit));

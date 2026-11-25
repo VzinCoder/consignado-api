@@ -143,7 +143,9 @@ export class DrizzleSimulationRepository implements SimulationRepository {
     if (search) {
       const digits = search.replace(/\D/g, '');
       const byName = ilike(customers.name, `%${escapeLike(search)}%`);
-      const searchCondition = digits ? or(byName, like(customers.cpf, `%${digits}%`)) : byName;
+      const searchCondition = digits
+        ? or(byName, like(customers.cpf, `%${digits}%`), like(customers.phone, `%${digits}%`))
+        : byName;
       if (searchCondition) conditions.push(searchCondition);
     }
 

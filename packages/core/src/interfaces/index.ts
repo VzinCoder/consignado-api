@@ -34,7 +34,7 @@ export interface NewSimulation {
 }
 
 export interface SimulationListFilter {
-  /** Matches customer name (case-insensitive) or CPF digits. */
+  /** Matches customer name (case-insensitive), or CPF or phone digits. */
   search?: string;
   createdFrom?: Date;
   onlyWithInterest?: boolean;
