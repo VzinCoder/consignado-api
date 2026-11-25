@@ -8,7 +8,14 @@ export function SiteHeader() {
     <header className="border-b border-border bg-background">
       <div className="mx-auto flex h-[78px] max-w-[1312px] items-center justify-between px-6">
         <Link href="/" aria-label="Zelafin, página inicial">
-          <Image src="/logo.png" alt="Zelafin" width={144} height={32} priority />
+          <Image
+            src="/logo.png"
+            alt="Zelafin"
+            width={144}
+            height={32}
+            className="h-8 w-auto"
+            priority
+          />
         </Link>
         <nav className="flex items-center gap-2 text-sm font-medium">
           <Button variant="ghost" asChild className="hidden sm:inline-flex">
