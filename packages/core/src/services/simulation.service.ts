@@ -51,18 +51,23 @@ export interface SimulationServiceDeps {
 
 export interface AdminListFilter {
   status?: SimulationStatus;
+  /** true: only simulations with a FAILED bank to retry; false: only those without. */
+  needsRetry?: boolean;
   search?: string;
 }
 
 export interface AdminOverview {
-  today: {
-    simulations: number;
-    interested: number;
-    approvedResults: number;
-    failedResults: number;
-  };
+  simulationsToday: number;
+  simulationsYesterday: number;
+  /** Customers with a chosen offer that is still valid. */
+  interestedCount: number;
+  interestedToday: number;
+  /** Valid simulations with at least one FAILED bank. */
+  needsRetryCount: number;
   interested: AdminSimulationSummary[];
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export class SimulationService {
   private readonly views: ViewBuilder;
@@ -177,8 +182,10 @@ export class SimulationService {
       search: filter.search,
       limit: ADMIN_LIST_LIMIT,
     });
-    const summaries = rows.map((row) => this.views.summary(row, now));
-    return filter.status ? summaries.filter((s) => s.status === filter.status) : summaries;
+    return rows
+      .map((row) => this.views.summary(row, now))
+      .filter((s) => !filter.status || s.status === filter.status)
+      .filter((s) => filter.needsRetry === undefined || s.needsRetry === filter.needsRetry);
   }
 
   async getDetails(id: string): Promise<AdminSimulationView> {
@@ -193,30 +200,30 @@ export class SimulationService {
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const today = await this.deps.simulations.list({
-      createdFrom: startOfDay,
+    const startOfYesterday = new Date(startOfDay.getTime() - DAY_MS);
+
+    const recent = await this.deps.simulations.list({
+      createdFrom: startOfYesterday,
       limit: ADMIN_LIST_LIMIT,
     });
     const withInterest = await this.deps.simulations.list({
       onlyWithInterest: true,
       limit: ADMIN_LIST_LIMIT,
     });
+    const latest = await this.deps.simulations.list({ limit: ADMIN_LIST_LIMIT });
 
-    const todayResults = today.flatMap((d) => d.results);
     const interested = withInterest
       .map((row) => this.views.summary(row, now))
       .filter((s) => s.status === 'INTERESTED')
       .sort((a, b) => (b.interestAt?.getTime() ?? 0) - (a.interestAt?.getTime() ?? 0));
+    const simulationsToday = recent.filter((d) => d.simulation.createdAt >= startOfDay).length;
 
     return {
-      today: {
-        simulations: today.length,
-        interested: withInterest.filter(
-          (d) => d.simulation.interestAt && d.simulation.interestAt >= startOfDay,
-        ).length,
-        approvedResults: todayResults.filter((r) => r.status === 'APPROVED').length,
-        failedResults: todayResults.filter((r) => r.status === 'FAILED').length,
-      },
+      simulationsToday,
+      simulationsYesterday: recent.length - simulationsToday,
+      interestedCount: interested.length,
+      interestedToday: interested.filter((s) => s.interestAt && s.interestAt >= startOfDay).length,
+      needsRetryCount: latest.filter((row) => this.views.summary(row, now).needsRetry).length,
       interested,
     };
   }

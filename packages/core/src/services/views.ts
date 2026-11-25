@@ -78,6 +78,8 @@ export interface AdminSimulationSummary {
   chosenBank: BestOfferSummary | null;
   bestOffer: BestOfferSummary | null;
   counts: Record<BankResultStatus, number>;
+  /** Some bank is FAILED and the simulation is still valid: the team should retry it. */
+  needsRetry: boolean;
 }
 
 export class ViewBuilder {
@@ -195,6 +197,7 @@ export class ViewBuilder {
       chosenBank: this.summaryOf(chosen),
       bestOffer: this.summaryOf(pickBestOffer(results)),
       counts,
+      needsRetry: counts.FAILED > 0 && !isExpired(simulation, now),
     };
   }
 }

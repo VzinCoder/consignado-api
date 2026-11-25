@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BankIntegrationError,
   MarginExceededError,
   NotFoundError,
   OfferNotAvailableError,
@@ -227,10 +228,22 @@ describe('SimulationService admin reads', () => {
   it('summarizes the day and lists interested customers', async () => {
     const { simulationService, first } = await seeded();
     const overview = await simulationService.overview();
-    expect(overview.today.simulations).toBe(2);
-    expect(overview.today.interested).toBe(1);
-    expect(overview.today.approvedResults).toBe(4);
+    expect(overview.simulationsToday).toBe(2);
+    expect(overview.simulationsYesterday).toBe(0);
+    expect(overview.interestedCount).toBe(1);
+    expect(overview.interestedToday).toBe(1);
     expect(overview.interested.map((s) => s.id)).toEqual([first.id]);
+  });
+
+  it('flags simulations with a failed bank as needing retry', async () => {
+    const { simulationService, bankQueryService, provider, second } = await seeded();
+    provider('carcara').behavior = () => Promise.reject(new BankIntegrationError('HTTP 503'));
+    await bankQueryService.querySimulation(second.id);
+
+    const pending = await simulationService.list({ needsRetry: true });
+    expect(pending.map((s) => s.id)).toEqual([second.id]);
+    expect(pending[0]?.needsRetry).toBe(true);
+    expect((await simulationService.overview()).needsRetryCount).toBe(1);
   });
 });
 
