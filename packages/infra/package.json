@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./env": "./src/env.ts",
-    "./database": "./src/database/index.ts"
+    "./database": "./src/database/index.ts",
+    "./container": "./src/container.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -16,8 +17,10 @@
     "db:seed": "tsx --env-file-if-exists=../../.env src/database/seed.ts"
   },
   "dependencies": {
+    "@zelafin/core": "workspace:*",
     "drizzle-orm": "0.45.4",
     "pg": "8.23.1",
+    "pino": "10.4.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
