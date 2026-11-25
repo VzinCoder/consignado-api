@@ -6,6 +6,7 @@ import { priceInstallmentCents } from '@zelafin/core';
 import { sql } from 'drizzle-orm';
 import { getEnv } from '../env';
 import { createDatabase } from './client';
+import { isLocalDatabase } from './local-database';
 import { bankResults, customers, simulations } from './schema';
 
 type NewBankResult = Omit<typeof bankResults.$inferInsert, 'simulationId'>;
@@ -182,8 +183,9 @@ const SIMULATIONS: SeedSimulation[] = [
 
 async function seed(): Promise<void> {
   const env = getEnv();
-  if (env.NODE_ENV === 'production') {
-    throw new Error('O seed apaga todos os dados e não roda em produção.');
+  // NODE_ENV defaults to development, so it alone is not enough: also require a local database.
+  if (env.NODE_ENV === 'production' || !isLocalDatabase(env.DATABASE_URL)) {
+    throw new Error('O seed apaga todos os dados e só roda num banco local, fora de produção.');
   }
   const offerTtlMs = env.OFFER_TTL_HOURS * HOUR_MS;
 
