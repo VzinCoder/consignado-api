@@ -1,9 +1,9 @@
 /**
- * Integration tests against a real Postgres. Skipped when DATABASE_URL is not set
- * (CI provides a Postgres service and runs migrations first).
+ * Integration tests against a real Postgres, in the separate <database>_test created by
+ * global-setup.ts. Skipped when DATABASE_URL is not set.
  */
 import { inArray } from 'drizzle-orm';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
 import { createDatabase, type DatabaseConnection } from '../../../src/database/client';
 import {
   DrizzleBankResultRepository,
@@ -12,7 +12,7 @@ import {
 } from '../../../src/database/repositories';
 import { customers, simulations } from '../../../src/database/schema';
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = inject('testDatabaseUrl');
 // Valid fictional CPFs reserved for these tests.
 const CPF_A = '39053344705';
 const CPF_B = '15350946056';
