@@ -1,0 +1,200 @@
+import {
+  MarginExceededError,
+  NotFoundError,
+  OfferNotAvailableError,
+  SimulationExpiredError,
+} from '../errors';
+import type {
+  BankProvider,
+  BankResultRepository,
+  Clock,
+  CustomerRepository,
+  SimulationRepository,
+} from '../interfaces';
+import type { SimulationStatus } from '../models';
+import { checkMargin, type MarginCheck } from '../rules/loan';
+import {
+  STALE_FAILURE_REASON,
+  expiresAt,
+  isApproved,
+  isExpired,
+  staleCutoff,
+} from '../rules/simulation';
+import {
+  validateLoanTerms,
+  validateSimulationRequest,
+  type LoanTerms,
+  type SimulationRequest,
+} from '../rules/simulation-request';
+import {
+  ViewBuilder,
+  type AdminSimulationSummary,
+  type AdminSimulationView,
+  type PublicSimulationView,
+} from './views';
+
+export const ADMIN_LIST_LIMIT = 200;
+
+export interface SimulationServiceConfig {
+  offerTtlHours: number;
+  bankTimeoutMs: number;
+}
+
+export interface SimulationServiceDeps {
+  customers: CustomerRepository;
+  simulations: SimulationRepository;
+  bankResults: BankResultRepository;
+  providers: BankProvider[];
+  clock: Clock;
+  config: SimulationServiceConfig;
+}
+
+export interface AdminListFilter {
+  status?: SimulationStatus;
+  search?: string;
+}
+
+export interface AdminOverview {
+  today: {
+    simulations: number;
+    interested: number;
+    approvedResults: number;
+    failedResults: number;
+  };
+  interested: AdminSimulationSummary[];
+}
+
+export class SimulationService {
+  private readonly views: ViewBuilder;
+
+  constructor(private readonly deps: SimulationServiceDeps) {
+    this.views = new ViewBuilder(deps.providers);
+  }
+
+  /** Lowest rate among all banks: if the installment doesn't fit even with it, no bank approves. */
+  private lowestRate(): number {
+    return Math.min(...this.deps.providers.map((p) => p.minMonthlyRate));
+  }
+
+  checkMargin(terms: LoanTerms): MarginCheck {
+    const valid = validateLoanTerms(terms);
+    return checkMargin(
+      valid.salaryCents,
+      valid.requestedAmountCents,
+      valid.termMonths,
+      this.lowestRate(),
+    );
+  }
+
+  async create(input: SimulationRequest): Promise<{ id: string }> {
+    const request = validateSimulationRequest(input);
+    const margin = this.checkMargin(request);
+    if (!margin.fits) {
+      throw new MarginExceededError(margin.maxAmountCents, margin.maxInstallmentCents);
+    }
+
+    const customer = await this.deps.customers.upsertByCpf({
+      cpf: request.cpf,
+      name: request.name,
+      email: request.email,
+      phone: request.phone,
+    });
+
+    const now = this.deps.clock.now();
+    const { simulation } = await this.deps.simulations.create(
+      {
+        customerId: customer.id,
+        employerCnpj: request.employerCnpj,
+        salaryCents: request.salaryCents,
+        requestedAmountCents: request.requestedAmountCents,
+        termMonths: request.termMonths,
+        origin: request.origin,
+        createdAt: now,
+        expiresAt: expiresAt(now, this.deps.config.offerTtlHours),
+      },
+      this.deps.providers.map((p) => p.slug),
+    );
+    return { id: simulation.id };
+  }
+
+  /** Stuck PENDING results (server restarted mid-query) become FAILED before any read. */
+  private async releaseStalePending(): Promise<Date> {
+    const now = this.deps.clock.now();
+    await this.deps.bankResults.failStalePending(
+      staleCutoff(now, this.deps.config.bankTimeoutMs),
+      STALE_FAILURE_REASON,
+      now,
+    );
+    return now;
+  }
+
+  async getPublic(id: string): Promise<PublicSimulationView> {
+    const now = await this.releaseStalePending();
+    const details = await this.deps.simulations.findDetails(id);
+    if (!details) throw new NotFoundError('Simulação');
+    return this.views.publicView(details, details.customer.name, now);
+  }
+
+  async registerInterest(id: string, bankSlug: string): Promise<PublicSimulationView> {
+    const now = await this.releaseStalePending();
+    const details = await this.deps.simulations.findDetails(id);
+    if (!details) throw new NotFoundError('Simulação');
+    if (isExpired(details.simulation, now)) throw new SimulationExpiredError();
+
+    const result = details.results.find((r) => r.bankSlug === bankSlug);
+    if (!result || !isApproved(result)) throw new OfferNotAvailableError();
+
+    const simulation = await this.deps.simulations.setInterest(id, bankSlug, now);
+    return this.views.publicView({ ...details, simulation }, details.customer.name, now);
+  }
+
+  async list(filter: AdminListFilter = {}): Promise<AdminSimulationSummary[]> {
+    const now = await this.releaseStalePending();
+    const rows = await this.deps.simulations.list({
+      search: filter.search,
+      limit: ADMIN_LIST_LIMIT,
+    });
+    const summaries = rows.map((row) => this.views.summary(row, now));
+    return filter.status ? summaries.filter((s) => s.status === filter.status) : summaries;
+  }
+
+  async getDetails(id: string): Promise<AdminSimulationView> {
+    const now = await this.releaseStalePending();
+    const details = await this.deps.simulations.findDetails(id);
+    if (!details) throw new NotFoundError('Simulação');
+    return this.views.adminView(details, now);
+  }
+
+  async overview(): Promise<AdminOverview> {
+    const now = await this.releaseStalePending();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const today = await this.deps.simulations.list({
+      createdFrom: startOfDay,
+      limit: ADMIN_LIST_LIMIT,
+    });
+    const withInterest = await this.deps.simulations.list({
+      onlyWithInterest: true,
+      limit: ADMIN_LIST_LIMIT,
+    });
+
+    const todayResults = today.flatMap((d) => d.results);
+    const interested = withInterest
+      .map((row) => this.views.summary(row, now))
+      .filter((s) => s.status === 'INTERESTED')
+      .sort((a, b) => (b.interestAt?.getTime() ?? 0) - (a.interestAt?.getTime() ?? 0));
+
+    return {
+      today: {
+        simulations: today.length,
+        interested: withInterest.filter(
+          (d) => d.simulation.interestAt && d.simulation.interestAt >= startOfDay,
+        ).length,
+        approvedResults: todayResults.filter((r) => r.status === 'APPROVED').length,
+        failedResults: todayResults.filter((r) => r.status === 'FAILED').length,
+      },
+      interested,
+    };
+  }
+}
