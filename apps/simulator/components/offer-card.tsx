@@ -56,7 +56,7 @@ export function OfferCard({ result, chosen, disabled, onInterest }: Props) {
       </div>
 
       {chosen ? (
-        <Button className="w-full font-semibold" disabled>
+        <Button className="w-full font-semibold disabled:opacity-100" disabled>
           <Check /> Você escolheu esta oferta
         </Button>
       ) : (
