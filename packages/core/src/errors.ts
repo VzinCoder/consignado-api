@@ -88,3 +88,11 @@ export class BankIntegrationError extends Error {
     this.name = 'BankIntegrationError';
   }
 }
+
+/**
+ * Matches a domain error by its stable code. Prefer it over `instanceof` across module boundaries:
+ * in Next.js, a server component and the cached container may hold different copies of this module.
+ */
+export function hasErrorCode(error: unknown, code: string): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === code;
+}

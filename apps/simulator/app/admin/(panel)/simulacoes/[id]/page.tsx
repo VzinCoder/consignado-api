@@ -1,6 +1,7 @@
-import type { AdminBankResultView, AdminSimulationView } from '@zelafin/core';
+import { hasErrorCode, type AdminBankResultView, type AdminSimulationView } from '@zelafin/core';
 import { ChevronRight, HandHeart, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { AutoRefresh } from '@/components/admin/auto-refresh';
 import { Avatar } from '@/components/admin/avatar';
 import { RetryControl } from '@/components/admin/retry-control';
@@ -17,6 +18,16 @@ import { cn } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
 
 const BRAZIL_COUNTRY_CODE = '55';
+
+/** Unknown or malformed id: answer 404 with the not-found page, not a 500. */
+async function loadDetails(rawId: string): Promise<AdminSimulationView> {
+  try {
+    return await getContainer().simulationService.getDetails(parseId(rawId));
+  } catch (error) {
+    if (hasErrorCode(error, 'NOT_FOUND')) notFound();
+    throw error;
+  }
+}
 
 function offerLine(result: AdminBankResultView): string {
   if (!result.offer) return '';
@@ -109,8 +120,7 @@ export default async function AdminSimulationDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const id = parseId((await params).id);
-  const view = await getContainer().simulationService.getDetails(id);
+  const view = await loadDetails((await params).id);
   const now = new Date();
 
   // Configured base URL: the request Host header can be an internal address (proxy) or forged.
