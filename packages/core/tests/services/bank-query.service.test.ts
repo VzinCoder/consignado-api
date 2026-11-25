@@ -3,9 +3,9 @@ import {
   BankIntegrationError,
   BankResultNotRetryableError,
   SimulationExpiredError,
-} from '../errors';
-import { approvingBehavior, rejectingBehavior } from '../testing';
-import { OFFER_TTL_HOURS, setup, validRequest } from './test-setup';
+} from '../../src/errors';
+import { approvingBehavior, rejectingBehavior } from '../helpers/fakes';
+import { OFFER_TTL_HOURS, setup, validRequest } from '../helpers/setup';
 
 const HOUR_MS = 60 * 60 * 1000;
 

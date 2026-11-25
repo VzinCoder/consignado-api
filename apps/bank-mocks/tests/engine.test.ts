@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ipeProfile } from './banks/ipe';
+import { ipeProfile } from '../src/banks/ipe';
 import {
   behave,
   evaluate,
@@ -8,7 +8,7 @@ import {
   rateForTerm,
   SLOW_RESPONSE_MS,
   type Runtime,
-} from './engine';
+} from '../src/engine';
 
 const request = {
   cpf: '52998224725',

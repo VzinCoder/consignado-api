@@ -6,10 +6,10 @@ import {
   OfferNotAvailableError,
   SimulationExpiredError,
   ValidationError,
-} from '../errors';
-import { priceInstallmentCents } from '../rules/loan';
-import { rejectingBehavior } from '../testing';
-import { BANK_TIMEOUT_MS, OFFER_TTL_HOURS, setup, validRequest } from './test-setup';
+} from '../../src/errors';
+import { priceInstallmentCents } from '../../src/rules/loan';
+import { rejectingBehavior } from '../helpers/fakes';
+import { BANK_TIMEOUT_MS, OFFER_TTL_HOURS, setup, validRequest } from '../helpers/setup';
 
 const HOUR_MS = 60 * 60 * 1000;
 

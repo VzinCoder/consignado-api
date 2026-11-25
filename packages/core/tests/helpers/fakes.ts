@@ -10,7 +10,7 @@ import type {
   NewSimulation,
   SimulationListFilter,
   SimulationRepository,
-} from '../interfaces';
+} from '../../src/interfaces';
 import type {
   BankQuote,
   BankQuoteRequest,
@@ -20,8 +20,8 @@ import type {
   Simulation,
   SimulationDetails,
   SimulationWithResults,
-} from '../models';
-import { onlyDigits } from '../rules/documents';
+} from '../../src/models';
+import { onlyDigits } from '../../src/rules/documents';
 
 export class InMemoryStore {
   customers = new Map<string, Customer>();

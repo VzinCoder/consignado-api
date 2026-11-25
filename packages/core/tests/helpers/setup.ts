@@ -1,4 +1,4 @@
-import type { SimulationRequest } from '../rules/simulation-request';
+import type { SimulationRequest } from '../../src/rules/simulation-request';
 import {
   FakeBankProvider,
   FakeBankResultRepository,
@@ -8,9 +8,9 @@ import {
   FakeSimulationRepository,
   InMemoryStore,
   approvingBehavior,
-} from '../testing';
-import { BankQueryService } from './bank-query.service';
-import { SimulationService } from './simulation.service';
+} from './fakes';
+import { BankQueryService } from '../../src/services/bank-query.service';
+import { SimulationService } from '../../src/services/simulation.service';
 
 export const BANK_TIMEOUT_MS = 5000;
 export const OFFER_TTL_HOURS = 72;

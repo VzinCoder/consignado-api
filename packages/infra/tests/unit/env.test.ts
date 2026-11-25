@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { parseEnv as nodeParseEnv } from 'node:util';
 import { describe, expect, it } from 'vitest';
-import { InvalidEnvError, parseEnv } from './env';
+import { InvalidEnvError, parseEnv } from '../../src/env';
 
 const validEnv = {
   DATABASE_URL: 'postgres://zelafin:zelafin@localhost:5432/zelafin',
@@ -45,7 +45,7 @@ describe('parseEnv', () => {
   });
 
   it('accepts the .env.example file as is', () => {
-    const example = readFileSync(new URL('../../../.env.example', import.meta.url), 'utf8');
+    const example = readFileSync(new URL('../../../../.env.example', import.meta.url), 'utf8');
     expect(() => parseEnv(nodeParseEnv(example))).not.toThrow();
   });
 });

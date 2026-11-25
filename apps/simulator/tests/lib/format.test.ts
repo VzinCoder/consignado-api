@@ -6,7 +6,7 @@ import {
   formatMoney,
   formatPhone,
   formatRate,
-} from './format';
+} from '../../lib/format';
 
 const WHITESPACE = /\s/g;
 

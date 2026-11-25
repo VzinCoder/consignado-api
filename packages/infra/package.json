@@ -12,6 +12,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file-if-exists=../../.env src/database/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=../../.env src/database/seed.ts"

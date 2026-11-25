@@ -1,66 +1,21 @@
-import { BankIntegrationError, type BankProvider } from '@zelafin/core';
+import type { BankProvider } from '@zelafin/core';
 import { describe, expect, it } from 'vitest';
-import { postJson, type FetchFn } from './http-client';
+import type { FetchFn } from '../../../src/banks/http-client';
 import {
   CarcaraProvider,
   IpeProvider,
   JangadaProvider,
   MandacaruProvider,
   parseRateText,
-} from './providers';
-
-const request = {
-  cpf: '52998224725',
-  salaryCents: 500_000,
-  amountCents: 1_000_000,
-  termMonths: 48,
-};
-const BASE_URL = 'http://bank.test';
-const TIMEOUT_MS = 20;
-
-const respond =
-  (body: unknown, status = 200): FetchFn =>
-  () =>
-    Promise.resolve(new Response(JSON.stringify(body), { status }));
-
-const hanging: FetchFn = (_url, init) =>
-  new Promise((_resolve, reject) => {
-    init.signal?.addEventListener('abort', () => {
-      reject(new DOMException('The operation timed out.', 'TimeoutError'));
-    });
-  });
-
-const networkDown: FetchFn = () => Promise.reject(new TypeError('fetch failed'));
-
-async function failureReason(promise: Promise<unknown>): Promise<string> {
-  const error = await promise.then(
-    () => null,
-    (e: unknown) => e,
-  );
-  if (!(error instanceof BankIntegrationError)) throw new Error('expected BankIntegrationError');
-  return error.reason;
-}
-
-describe('postJson', () => {
-  it('times out using the configured limit', async () => {
-    expect(
-      await failureReason(postJson(BASE_URL, {}, { timeoutMs: TIMEOUT_MS, fetch: hanging })),
-    ).toBe('timeout após 20 ms');
-  });
-
-  it('converts network errors', async () => {
-    expect(
-      await failureReason(postJson(BASE_URL, {}, { timeoutMs: TIMEOUT_MS, fetch: networkDown })),
-    ).toBe('erro de rede ao chamar o banco');
-  });
-
-  it('rejects bodies that are not JSON', async () => {
-    const html: FetchFn = () => Promise.resolve(new Response('<html>', { status: 502 }));
-    expect(
-      await failureReason(postJson(BASE_URL, {}, { timeoutMs: TIMEOUT_MS, fetch: html })),
-    ).toBe('HTTP 502 com corpo que não é JSON');
-  });
-});
+} from '../../../src/banks/providers';
+import {
+  BASE_URL,
+  TIMEOUT_MS,
+  failureReason,
+  hanging,
+  quoteRequest as request,
+  respond,
+} from '../../helpers/fake-fetch';
 
 type ProviderFactory = (fetch: FetchFn) => BankProvider;
 

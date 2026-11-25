@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { SESSION_TTL_SECONDS, createSessionToken, safeEqual, verifySessionToken } from './session';
+import {
+  SESSION_TTL_SECONDS,
+  createSessionToken,
+  safeEqual,
+  verifySessionToken,
+} from '../../lib/session';
 
 const SECRET = 'x'.repeat(32);
 const now = new Date('2026-11-25T12:00:00Z');

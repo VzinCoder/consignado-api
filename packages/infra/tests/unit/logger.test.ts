@@ -1,6 +1,6 @@
 import { Writable } from 'node:stream';
 import { describe, expect, it } from 'vitest';
-import { PinoLogger, createPino } from './logger';
+import { PinoLogger, createPino } from '../../src/logger';
 
 describe('PinoLogger', () => {
   it('censors personal fields', () => {

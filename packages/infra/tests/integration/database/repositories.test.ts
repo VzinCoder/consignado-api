@@ -4,13 +4,13 @@
  */
 import { inArray } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createDatabase, type DatabaseConnection } from './client';
+import { createDatabase, type DatabaseConnection } from '../../../src/database/client';
 import {
   DrizzleBankResultRepository,
   DrizzleCustomerRepository,
   DrizzleSimulationRepository,
-} from './repositories';
-import { customers, simulations } from './schema';
+} from '../../../src/database/repositories';
+import { customers, simulations } from '../../../src/database/schema';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 // Valid fictional CPFs reserved for these tests.

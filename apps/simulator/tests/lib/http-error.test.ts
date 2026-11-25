@@ -7,7 +7,7 @@ import {
 } from '@zelafin/core';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { invalidRequest, toErrorResponse } from './http-error';
+import { invalidRequest, toErrorResponse } from '../../lib/http-error';
 
 async function read(response: Response) {
   const body: unknown = await response.json();
