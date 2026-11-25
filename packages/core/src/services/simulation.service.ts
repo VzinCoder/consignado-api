@@ -117,6 +117,29 @@ export class SimulationService {
     return { id: simulation.id };
   }
 
+  /** Creates a fresh simulation with the same customer and loan data (e.g. after expiration). */
+  async renew(id: string): Promise<{ id: string }> {
+    const previous = await this.deps.simulations.findById(id);
+    if (!previous) throw new NotFoundError('Simulação');
+    const { simulation } = previous;
+
+    const now = this.deps.clock.now();
+    const created = await this.deps.simulations.create(
+      {
+        customerId: simulation.customerId,
+        employerCnpj: simulation.employerCnpj,
+        salaryCents: simulation.salaryCents,
+        requestedAmountCents: simulation.requestedAmountCents,
+        termMonths: simulation.termMonths,
+        origin: simulation.origin,
+        createdAt: now,
+        expiresAt: expiresAt(now, this.deps.config.offerTtlHours),
+      },
+      this.deps.providers.map((p) => p.slug),
+    );
+    return { id: created.simulation.id };
+  }
+
   /** Stuck PENDING results (server restarted mid-query) become FAILED before any read. */
   private async releaseStalePending(): Promise<Date> {
     const now = this.deps.clock.now();

@@ -233,3 +233,28 @@ describe('SimulationService admin reads', () => {
     expect(overview.interested.map((s) => s.id)).toEqual([first.id]);
   });
 });
+
+describe('SimulationService.renew', () => {
+  it('creates a new valid simulation with the same data', async () => {
+    const { simulationService, bankQueryService, store, clock } = setup();
+    const { id } = await simulationService.create(validRequest);
+    await bankQueryService.querySimulation(id);
+    clock.advance(OFFER_TTL_HOURS * HOUR_MS + 1);
+    expect((await simulationService.getPublic(id)).status).toBe('EXPIRED');
+
+    const renewed = await simulationService.renew(id);
+    expect(renewed.id).not.toBe(id);
+    const view = await simulationService.getPublic(renewed.id);
+    expect(view.status).toBe('PROCESSING');
+    expect(view.requestedAmountCents).toBe(validRequest.requestedAmountCents);
+    expect(store.simulations.get(renewed.id)?.customerId).toBe(
+      store.simulations.get(id)?.customerId,
+    );
+    expect(store.resultsOf(renewed.id)).toHaveLength(4);
+  });
+
+  it('throws NOT_FOUND for an unknown id', async () => {
+    const { simulationService } = setup();
+    await expect(simulationService.renew('nope')).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
