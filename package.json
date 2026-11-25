@@ -11,6 +11,7 @@
     "infra:up": "docker compose -f docker-compose.dev.yml up -d --wait",
     "infra:down": "docker compose -f docker-compose.dev.yml down",
     "dev": "turbo run dev --filter=@zelafin/simulator --filter=@zelafin/bank-mocks",
+    "build": "turbo run build",
     "test": "turbo run test",
     "lint": "eslint .",
     "typecheck": "turbo run typecheck",
