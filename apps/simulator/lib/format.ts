@@ -51,3 +51,21 @@ const dateTime = new Intl.DateTimeFormat('pt-BR', {
 export const formatDateTime = (iso: string) => dateTime.format(new Date(iso));
 
 export const TERM_OPTIONS = [12, 24, 36, 48, 60, 72, 84, 96] as const;
+
+const MINUTE_MS = 60_000;
+const HOUR_MINUTES = 60;
+const DAY_HOURS = 24;
+
+/** "agora", "há 25 min", "há 3 h", "há 2 dias". */
+export function formatRelative(date: Date, now: Date = new Date()): string {
+  const minutes = Math.floor((now.getTime() - date.getTime()) / MINUTE_MS);
+  if (minutes < 1) return 'agora';
+  if (minutes < HOUR_MINUTES) return `há ${minutes} min`;
+  const hours = Math.floor(minutes / HOUR_MINUTES);
+  if (hours < DAY_HOURS) return `há ${hours} h`;
+  const days = Math.floor(hours / DAY_HOURS);
+  return days === 1 ? 'há 1 dia' : `há ${days} dias`;
+}
+
+const timeOnly = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+export const formatTime = (date: Date) => timeOnly.format(date);
