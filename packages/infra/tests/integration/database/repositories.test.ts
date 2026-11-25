@@ -153,6 +153,28 @@ describe.skipIf(!DATABASE_URL)('Drizzle repositories', () => {
     expect((await resultRepo.findById(results[0]?.id ?? ''))?.status).toBe('FAILED');
   });
 
+  it('fails stale PENDING results of one simulation only', async () => {
+    const customer = await customerRepo.upsertByCpf({
+      cpf: CPF_B,
+      name: 'Outro Cliente',
+      email: 'outro@exemplo.com',
+      phone: '11900000003',
+    });
+    const old = new Date(Date.now() - 10 * 60_000);
+    const target = await simulationRepo.create(newSimulation(customer.id, old), ['ipe']);
+    const untouched = await simulationRepo.create(newSimulation(customer.id, old), ['ipe']);
+
+    const count = await resultRepo.failStalePending(
+      new Date(Date.now() - 60_000),
+      'timeout',
+      new Date(),
+      target.simulation.id,
+    );
+    expect(count).toBe(1);
+    expect((await resultRepo.findById(target.results[0]?.id ?? ''))?.status).toBe('FAILED');
+    expect((await resultRepo.findById(untouched.results[0]?.id ?? ''))?.status).toBe('PENDING');
+  });
+
   it('lists most recent first and searches by name and CPF digits', async () => {
     const byName = await simulationRepo.list({ search: 'outro cli', limit: 10 });
     expect(byName.every((d) => d.customer.cpf === CPF_B)).toBe(true);

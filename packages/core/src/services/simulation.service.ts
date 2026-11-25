@@ -148,26 +148,30 @@ export class SimulationService {
     return { id: created.simulation.id };
   }
 
-  /** Stuck PENDING results (server restarted mid-query) become FAILED before any read. */
-  private async releaseStalePending(): Promise<Date> {
+  /**
+   * Stuck PENDING results (server restarted mid-query) become FAILED before any read.
+   * Reading one simulation only touches its own results; admin lists release all of them.
+   */
+  private async releaseStalePending(simulationId?: string): Promise<Date> {
     const now = this.deps.clock.now();
     await this.deps.bankResults.failStalePending(
       staleCutoff(now, this.deps.config.bankTimeoutMs),
       STALE_FAILURE_REASON,
       now,
+      simulationId,
     );
     return now;
   }
 
   async getPublic(id: string): Promise<PublicSimulationView> {
-    const now = await this.releaseStalePending();
+    const now = await this.releaseStalePending(id);
     const details = await this.deps.simulations.findDetails(id);
     if (!details) throw new NotFoundError('Simulação');
     return this.views.publicView(details, details.customer.name, now);
   }
 
   async registerInterest(id: string, bankSlug: string): Promise<PublicSimulationView> {
-    const now = await this.releaseStalePending();
+    const now = await this.releaseStalePending(id);
     const details = await this.deps.simulations.findDetails(id);
     if (!details) throw new NotFoundError('Simulação');
     if (isExpired(details.simulation, now)) throw new SimulationExpiredError();
@@ -198,7 +202,7 @@ export class SimulationService {
   }
 
   async getDetails(id: string): Promise<AdminSimulationView> {
-    const now = await this.releaseStalePending();
+    const now = await this.releaseStalePending(id);
     const details = await this.deps.simulations.findDetails(id);
     if (!details) throw new NotFoundError('Simulação');
     return this.views.adminView(details, now);

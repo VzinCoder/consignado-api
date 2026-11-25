@@ -184,10 +184,16 @@ export class FakeBankResultRepository implements BankResultRepository {
     return Promise.resolve(updated);
   }
 
-  failStalePending(startedBefore: Date, reason: string, at: Date): Promise<number> {
+  failStalePending(
+    startedBefore: Date,
+    reason: string,
+    at: Date,
+    simulationId?: string,
+  ): Promise<number> {
     let count = 0;
     for (const result of this.store.results.values()) {
-      if (result.status === 'PENDING' && result.startedAt < startedBefore) {
+      const inScope = !simulationId || result.simulationId === simulationId;
+      if (inScope && result.status === 'PENDING' && result.startedAt < startedBefore) {
         this.store.results.set(result.id, {
           ...result,
           status: 'FAILED',

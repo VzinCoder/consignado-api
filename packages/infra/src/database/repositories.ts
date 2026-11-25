@@ -234,11 +234,21 @@ export class DrizzleBankResultRepository implements BankResultRepository {
     return row ? toBankResult(row) : null;
   }
 
-  async failStalePending(startedBefore: Date, reason: string, at: Date): Promise<number> {
+  async failStalePending(
+    startedBefore: Date,
+    reason: string,
+    at: Date,
+    simulationId?: string,
+  ): Promise<number> {
+    const conditions = [
+      eq(bankResults.status, 'PENDING'),
+      lt(bankResults.startedAt, startedBefore),
+    ];
+    if (simulationId) conditions.push(eq(bankResults.simulationId, simulationId));
     const rows = await this.db
       .update(bankResults)
       .set({ status: 'FAILED', failureReason: reason, respondedAt: at })
-      .where(and(eq(bankResults.status, 'PENDING'), lt(bankResults.startedAt, startedBefore)))
+      .where(and(...conditions))
       .returning({ id: bankResults.id });
     return rows.length;
   }

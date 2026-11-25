@@ -139,6 +139,17 @@ describe('SimulationService.getPublic', () => {
     expect(view.status).toBe('COMPLETED');
   });
 
+  it('only releases the stuck results of the simulation being read', async () => {
+    const { simulationService, clock, store } = setup();
+    const mine = await simulationService.create(validRequest);
+    const other = await simulationService.create({ ...validRequest, cpf: '11144477735' });
+    clock.advance(BANK_TIMEOUT_MS + 31_000);
+
+    await simulationService.getPublic(mine.id);
+    expect(store.resultsOf(mine.id).every((r) => r.status === 'FAILED')).toBe(true);
+    expect(store.resultsOf(other.id).every((r) => r.status === 'PENDING')).toBe(true);
+  });
+
   it('is EXPIRED after the offer TTL', async () => {
     const { simulationService, bankQueryService, clock } = setup();
     const { id } = await simulationService.create(validRequest);

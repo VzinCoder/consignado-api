@@ -57,8 +57,16 @@ export interface BankResultRepository {
   completeIfPending(id: string, completion: BankResultCompletion): Promise<BankResult | null>;
   /** Moves a FAILED result back to PENDING. Returns null if it was not FAILED. */
   restartIfFailed(id: string, startedAt: Date): Promise<BankResult | null>;
-  /** Marks every PENDING result started before `startedBefore` as FAILED. Returns how many. */
-  failStalePending(startedBefore: Date, reason: string, at: Date): Promise<number>;
+  /**
+   * Marks PENDING results started before `startedBefore` as FAILED (only those of `simulationId`
+   * when given). Returns how many.
+   */
+  failStalePending(
+    startedBefore: Date,
+    reason: string,
+    at: Date,
+    simulationId?: string,
+  ): Promise<number>;
 }
 
 export interface BankProvider {
