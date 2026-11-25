@@ -39,5 +39,12 @@ export default defineConfig(
       ],
     },
   },
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      // Vitest asymmetric matchers (expect.any) are typed as any.
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+    },
+  },
   prettier,
 );
