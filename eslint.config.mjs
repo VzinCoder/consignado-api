@@ -1,5 +1,6 @@
 // @ts-check
 import js from '@eslint/js';
+import nextPlugin from '@next/eslint-plugin-next';
 import prettier from 'eslint-config-prettier';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
@@ -44,6 +45,16 @@ export default defineConfig(
     rules: {
       // Vitest asymmetric matchers (expect.any) are typed as any.
       '@typescript-eslint/no-unsafe-assignment': 'off',
+    },
+  },
+  {
+    files: ['apps/simulator/**/*.{ts,tsx}'],
+    plugins: { '@next/next': nextPlugin },
+    languageOptions: { globals: { ...globals.browser } },
+    settings: { next: { rootDir: 'apps/simulator' } },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
     },
   },
   prettier,

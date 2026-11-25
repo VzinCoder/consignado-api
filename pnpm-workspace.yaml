@@ -3,5 +3,7 @@ packages:
   - 'packages/*'
 minimumReleaseAgeExclude:
   - '@types/node@24.19.3'
+  - lucide-react@1.80.0
+  - '@types/react@19.3.2'
 allowBuilds:
   esbuild: true
