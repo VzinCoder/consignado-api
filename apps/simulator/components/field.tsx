@@ -39,6 +39,12 @@ export function Field({ id, label, icon: Icon, error, children }: FieldProps) {
   );
 }
 
+/** Links the input to its error message, so screen readers announce it with the field. */
+export const errorProps = (id: string, error?: string) => ({
+  'aria-invalid': error ? true : undefined,
+  'aria-describedby': error ? `${id}-error` : undefined,
+});
+
 export const inputClass = (hasIcon: boolean, error?: string) =>
   cn(
     'h-11 bg-card text-[15px] font-medium',

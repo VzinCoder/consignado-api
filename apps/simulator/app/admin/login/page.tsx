@@ -29,7 +29,7 @@ export default async function AdminLoginPage() {
         <LoginForm />
       </Card>
       <p className="text-xs text-muted-foreground">
-        Área restrita à equipe. Acessos são registrados.
+        Área restrita à equipe. Tentativas de acesso são registradas.
       </p>
     </main>
   );

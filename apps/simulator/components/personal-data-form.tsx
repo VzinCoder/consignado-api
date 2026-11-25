@@ -5,7 +5,7 @@ import { ArrowRight, Building2, IdCard, Loader2, Mail, Phone, User } from 'lucid
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Field, inputClass } from '@/components/field';
+import { Field, errorProps, inputClass } from '@/components/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ApiError, api } from '@/lib/api-client';
@@ -64,6 +64,7 @@ export function PersonalDataForm({ terms }: Props) {
       <Field id="name" label="Nome completo" icon={User} error={errors.name?.message}>
         <Input
           id="name"
+          {...errorProps('name', errors.name?.message)}
           autoComplete="name"
           placeholder="Maria Souza"
           className={inputClass(true, errors.name?.message)}
@@ -73,6 +74,7 @@ export function PersonalDataForm({ terms }: Props) {
       <Field id="cpf" label="CPF" icon={IdCard} error={errors.cpf?.message}>
         <Input
           id="cpf"
+          {...errorProps('cpf', errors.cpf?.message)}
           inputMode="numeric"
           placeholder="000.000.000-00"
           className={inputClass(true, errors.cpf?.message)}
@@ -82,6 +84,7 @@ export function PersonalDataForm({ terms }: Props) {
       <Field id="phone" label="Telefone (WhatsApp)" icon={Phone} error={errors.phone?.message}>
         <Input
           id="phone"
+          {...errorProps('phone', errors.phone?.message)}
           inputMode="tel"
           autoComplete="tel"
           placeholder="(87) 99999-0000"
@@ -92,6 +95,7 @@ export function PersonalDataForm({ terms }: Props) {
       <Field id="email" label="E-mail" icon={Mail} error={errors.email?.message}>
         <Input
           id="email"
+          {...errorProps('email', errors.email?.message)}
           type="email"
           autoComplete="email"
           placeholder="maria.souza@email.com"
@@ -107,6 +111,7 @@ export function PersonalDataForm({ terms }: Props) {
       >
         <Input
           id="employerCnpj"
+          {...errorProps('employerCnpj', errors.employerCnpj?.message)}
           inputMode="numeric"
           placeholder="00.000.000/0000-00"
           className={inputClass(true, errors.employerCnpj?.message)}

@@ -4,7 +4,7 @@ import { ArrowRight, Calendar, Coins, Loader2, ReceiptText } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Field, inputClass } from '@/components/field';
+import { Field, errorProps, inputClass } from '@/components/field';
 import { MoneyInput } from '@/components/money-input';
 import { Button } from '@/components/ui/button';
 import {
@@ -76,6 +76,7 @@ export function SimulationRequestForm() {
           render={({ field }) => (
             <MoneyInput
               id="salary"
+              {...errorProps('salary', errors.salaryCents)}
               placeholder="R$ 0,00"
               className={inputClass(true, errors.salaryCents)}
               valueCents={field.value}
@@ -101,8 +102,8 @@ export function SimulationRequestForm() {
           render={({ field }) => (
             <MoneyInput
               id="amount"
+              {...errorProps('amount', errors.requestedAmountCents)}
               placeholder="R$ 0,00"
-              aria-invalid={Boolean(errors.requestedAmountCents)}
               className={inputClass(true, errors.requestedAmountCents)}
               valueCents={field.value}
               onValueChange={(cents) => {
@@ -127,7 +128,11 @@ export function SimulationRequestForm() {
                 clearError('requestedAmountCents');
               }}
             >
-              <SelectTrigger id="term" className={`${inputClass(true)} w-full`}>
+              <SelectTrigger
+                id="term"
+                {...errorProps('term', errors.termMonths)}
+                className={`${inputClass(true)} w-full`}
+              >
                 <SelectValue placeholder="Escolha o prazo" />
               </SelectTrigger>
               <SelectContent>

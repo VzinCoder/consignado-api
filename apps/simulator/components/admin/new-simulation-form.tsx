@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Field, inputClass } from '@/components/field';
+import { Field, errorProps, inputClass } from '@/components/field';
 import { MoneyInput } from '@/components/money-input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -114,6 +114,7 @@ export function NewSimulationForm() {
             <Field id="name" label="Nome completo" icon={User} error={errors.name?.message}>
               <Input
                 id="name"
+                {...errorProps('name', errors.name?.message)}
                 placeholder="Nome do cliente"
                 className={inputClass(true, errors.name?.message)}
                 {...register('name')}
@@ -122,6 +123,7 @@ export function NewSimulationForm() {
             <Field id="cpf" label="CPF" icon={IdCard} error={errors.cpf?.message}>
               <Input
                 id="cpf"
+                {...errorProps('cpf', errors.cpf?.message)}
                 inputMode="numeric"
                 placeholder="000.000.000-00"
                 className={inputClass(true, errors.cpf?.message)}
@@ -136,6 +138,7 @@ export function NewSimulationForm() {
             >
               <Input
                 id="phone"
+                {...errorProps('phone', errors.phone?.message)}
                 inputMode="tel"
                 placeholder="(00) 00000-0000"
                 className={inputClass(true, errors.phone?.message)}
@@ -145,6 +148,7 @@ export function NewSimulationForm() {
             <Field id="email" label="E-mail" icon={Mail} error={errors.email?.message}>
               <Input
                 id="email"
+                {...errorProps('email', errors.email?.message)}
                 type="email"
                 placeholder="cliente@email.com"
                 className={inputClass(true, errors.email?.message)}
@@ -160,6 +164,7 @@ export function NewSimulationForm() {
               >
                 <Input
                   id="employerCnpj"
+                  {...errorProps('employerCnpj', errors.employerCnpj?.message)}
                   inputMode="numeric"
                   placeholder="00.000.000/0000-00"
                   className={inputClass(true, errors.employerCnpj?.message)}
@@ -185,6 +190,7 @@ export function NewSimulationForm() {
                 render={({ field }) => (
                   <MoneyInput
                     id="salary"
+                    {...errorProps('salary', errors.salaryCents?.message)}
                     placeholder="R$ 0,00"
                     className={inputClass(true, errors.salaryCents?.message)}
                     valueCents={field.value}
@@ -205,6 +211,7 @@ export function NewSimulationForm() {
                 render={({ field }) => (
                   <MoneyInput
                     id="amount"
+                    {...errorProps('amount', errors.requestedAmountCents?.message)}
                     placeholder="R$ 0,00"
                     className={inputClass(true, errors.requestedAmountCents?.message)}
                     valueCents={field.value}
@@ -222,7 +229,11 @@ export function NewSimulationForm() {
                     value={String(field.value)}
                     onValueChange={(value) => field.onChange(Number(value))}
                   >
-                    <SelectTrigger id="term" className={`${inputClass(true)} w-full`}>
+                    <SelectTrigger
+                      id="term"
+                      {...errorProps('term', errors.termMonths?.message)}
+                      className={`${inputClass(true)} w-full`}
+                    >
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>

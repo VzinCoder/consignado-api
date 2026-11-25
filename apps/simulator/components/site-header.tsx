@@ -21,12 +21,10 @@ export function SiteHeader() {
           <Button variant="ghost" asChild className="hidden sm:inline-flex">
             <Link href="/#como-funciona">Como funciona</Link>
           </Button>
-          <Button variant="ghost" asChild className="hidden sm:inline-flex">
-            <Link href="/#duvidas">Dúvidas</Link>
-          </Button>
           <Button variant="ghost" asChild>
+            {/* Team access only: customers reach their offers through the link they receive. */}
             <Link href="/admin">
-              <User /> Entrar
+              <User /> Área da equipe
             </Link>
           </Button>
           <Button asChild>
