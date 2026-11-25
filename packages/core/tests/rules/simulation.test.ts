@@ -42,6 +42,7 @@ describe('deriveStatus', () => {
       'INTERESTED',
     );
     expect(deriveStatus({ expiresAt: future, chosenBankSlug: null }, done, now)).toBe('COMPLETED');
+    expect(deriveStatus({ expiresAt: past, chosenBankSlug: 'ipe' }, done, now)).toBe('INTERESTED');
   });
 });
 

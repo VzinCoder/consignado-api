@@ -38,6 +38,22 @@ export class SimulationExpiredError extends DomainError {
   }
 }
 
+export class SimulationStillValidError extends DomainError {
+  readonly code = 'SIMULATION_STILL_VALID';
+  constructor() {
+    super('Esta simulação ainda está válida. Não é preciso renovar.');
+    this.name = 'SimulationStillValidError';
+  }
+}
+
+export class InterestAlreadyRegisteredError extends DomainError {
+  readonly code = 'INTEREST_ALREADY_REGISTERED';
+  constructor() {
+    super('Você já escolheu uma oferta. Nossa equipe vai falar com você.');
+    this.name = 'InterestAlreadyRegisteredError';
+  }
+}
+
 export class OfferNotAvailableError extends DomainError {
   readonly code = 'OFFER_NOT_AVAILABLE';
   constructor() {

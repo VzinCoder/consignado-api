@@ -24,7 +24,8 @@ export function deriveStatus(
   results: Pick<BankResult, 'status'>[],
   now: Date,
 ): SimulationStatus {
-  if (isExpired(simulation, now)) return 'EXPIRED';
+  // A customer who chose an offer stays a lead for the team even after the offer validity.
+  if (!simulation.chosenBankSlug && isExpired(simulation, now)) return 'EXPIRED';
   if (results.some((r) => r.status === 'PENDING')) return 'PROCESSING';
   if (simulation.chosenBankSlug) return 'INTERESTED';
   return 'COMPLETED';

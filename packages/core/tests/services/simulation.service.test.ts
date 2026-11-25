@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   BankIntegrationError,
+  InterestAlreadyRegisteredError,
   MarginExceededError,
   NotFoundError,
   OfferNotAvailableError,
   SimulationExpiredError,
+  SimulationStillValidError,
   ValidationError,
 } from '../../src/errors';
 import { priceInstallmentCents } from '../../src/rules/loan';
@@ -173,6 +175,31 @@ describe('SimulationService.registerInterest', () => {
       SimulationExpiredError,
     );
   });
+
+  it('keeps the first choice: same bank again is accepted, another bank is refused', async () => {
+    const { simulationService, bankQueryService } = setup();
+    const { id } = await simulationService.create(validRequest);
+    await bankQueryService.querySimulation(id);
+    const first = await simulationService.registerInterest(id, 'ipe');
+
+    const again = await simulationService.registerInterest(id, 'ipe');
+    expect(again.interestAt).toEqual(first.interestAt);
+    await expect(simulationService.registerInterest(id, 'mandacaru')).rejects.toBeInstanceOf(
+      InterestAlreadyRegisteredError,
+    );
+    expect((await simulationService.getPublic(id)).chosenBankSlug).toBe('ipe');
+  });
+
+  it('stays INTERESTED after the offer validity (the lead is not lost)', async () => {
+    const { simulationService, bankQueryService, clock } = setup();
+    const { id } = await simulationService.create(validRequest);
+    await bankQueryService.querySimulation(id);
+    await simulationService.registerInterest(id, 'ipe');
+    clock.advance(OFFER_TTL_HOURS * HOUR_MS + 1);
+
+    expect((await simulationService.getPublic(id)).status).toBe('INTERESTED');
+    expect((await simulationService.overview()).interested.map((s) => s.id)).toEqual([id]);
+  });
 });
 
 describe('SimulationService admin reads', () => {
@@ -264,6 +291,12 @@ describe('SimulationService.renew', () => {
       store.simulations.get(id)?.customerId,
     );
     expect(store.resultsOf(renewed.id)).toHaveLength(4);
+  });
+
+  it('refuses a simulation that is still valid', async () => {
+    const { simulationService } = setup();
+    const { id } = await simulationService.create(validRequest);
+    await expect(simulationService.renew(id)).rejects.toBeInstanceOf(SimulationStillValidError);
   });
 
   it('throws NOT_FOUND for an unknown id', async () => {

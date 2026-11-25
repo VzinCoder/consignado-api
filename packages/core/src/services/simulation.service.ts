@@ -1,8 +1,10 @@
 import {
+  InterestAlreadyRegisteredError,
   MarginExceededError,
   NotFoundError,
   OfferNotAvailableError,
   SimulationExpiredError,
+  SimulationStillValidError,
 } from '../errors';
 import type {
   BankProvider,
@@ -59,7 +61,7 @@ export interface AdminListFilter {
 export interface AdminOverview {
   simulationsToday: number;
   simulationsYesterday: number;
-  /** Customers with a chosen offer that is still valid. */
+  /** Customers with a chosen offer (they stay leads even after the offer validity). */
   interestedCount: number;
   interestedToday: number;
   /** Valid simulations with at least one FAILED bank. */
@@ -129,6 +131,7 @@ export class SimulationService {
     const { simulation } = previous;
 
     const now = this.deps.clock.now();
+    if (!isExpired(simulation, now)) throw new SimulationStillValidError();
     const created = await this.deps.simulations.create(
       {
         customerId: simulation.customerId,
@@ -171,6 +174,12 @@ export class SimulationService {
 
     const result = details.results.find((r) => r.bankSlug === bankSlug);
     if (!result || !isApproved(result)) throw new OfferNotAvailableError();
+
+    const { chosenBankSlug } = details.simulation;
+    if (chosenBankSlug === bankSlug) {
+      return this.views.publicView(details, details.customer.name, now);
+    }
+    if (chosenBankSlug) throw new InterestAlreadyRegisteredError();
 
     const simulation = await this.deps.simulations.setInterest(id, bankSlug, now);
     return this.views.publicView({ ...details, simulation }, details.customer.name, now);
