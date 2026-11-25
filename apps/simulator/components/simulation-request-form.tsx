@@ -2,7 +2,7 @@
 
 import { ArrowRight, Calendar, Coins, Loader2, ReceiptText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Field, inputClass } from '@/components/field';
 import { MoneyInput } from '@/components/money-input';
@@ -17,20 +17,24 @@ import {
 import { ApiError, api } from '@/lib/api-client';
 import { TERM_OPTIONS, formatMoney } from '@/lib/format';
 import type { LoanTerms } from '@/lib/schemas';
-import { loanTermsQuery } from '@/lib/search-params';
-
-interface Props {
-  initial: LoanTerms;
-}
+import { DEFAULT_LOAN_TERMS, loadLoanTerms, saveLoanTerms } from '@/lib/loan-terms';
 
 type FieldErrors = Partial<Record<keyof LoanTerms, string>>;
 
-export function SimulationRequestForm({ initial }: Props) {
+export function SimulationRequestForm() {
   const router = useRouter();
-  const { control, handleSubmit, watch } = useForm<LoanTerms>({ defaultValues: initial });
+  const { control, handleSubmit, watch, reset } = useForm<LoanTerms>({
+    defaultValues: DEFAULT_LOAN_TERMS,
+  });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Back from step 2 or "Editar simulação": restore what the customer typed in this tab.
+  useEffect(() => {
+    const stored = loadLoanTerms();
+    if (stored) reset(stored);
+  }, [reset]);
 
   const salaryCents = watch('salaryCents');
   const marginBlocked = Boolean(errors.requestedAmountCents);
@@ -46,7 +50,8 @@ export function SimulationRequestForm({ initial }: Props) {
         });
         return;
       }
-      router.push(`/simular/dados?${loanTermsQuery(terms)}`);
+      saveLoanTerms(terms);
+      router.push('/simular/dados');
     } catch (error) {
       if (error instanceof ApiError && Object.keys(error.fields).length > 0) {
         setErrors(error.fields);

@@ -10,7 +10,6 @@ import {
 import { SimulationRequestForm } from '@/components/simulation-request-form';
 import { SiteHeader } from '@/components/site-header';
 import { Card } from '@/components/ui/card';
-import { parseLoanTermsParams } from '@/lib/search-params';
 
 const TRUST: [LucideIcon, string][] = [
   [ShieldCheck, 'Dados protegidos'],
@@ -32,13 +31,7 @@ const FEATURES: [LucideIcon, string, string][] = [
   ],
 ];
 
-export default async function LandingPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const initial = parseLoanTermsParams(await searchParams);
-
+export default function LandingPage() {
   return (
     <>
       <SiteHeader />
@@ -72,7 +65,7 @@ export default async function LandingPage({
               <h2 className="text-xl font-bold">Simule seu empréstimo consignado</h2>
               <p className="text-sm text-muted-foreground">Leva menos de um minuto.</p>
             </div>
-            <SimulationRequestForm initial={initial} />
+            <SimulationRequestForm />
           </Card>
         </section>
 

@@ -26,12 +26,11 @@ export interface BankResultView {
   isBest: boolean;
 }
 
-/** What the customer sees through the UUID link: no CPF, e-mail or phone. */
+/** What the customer sees through the UUID link: no CPF, e-mail, phone or salary. */
 export interface PublicSimulationView {
   id: string;
   customerFirstName: string;
   status: SimulationStatus;
-  salaryCents: number;
   requestedAmountCents: number;
   termMonths: number;
   createdAt: Date;
@@ -56,6 +55,7 @@ export interface AdminSimulationView extends Omit<
   'results' | 'customerFirstName'
 > {
   origin: SimulationOrigin;
+  salaryCents: number;
   employerCnpj: string;
   customer: { name: string; email: string; phone: string; maskedCpf: string };
   results: AdminBankResultView[];
@@ -141,7 +141,6 @@ export class ViewBuilder {
       id: simulation.id,
       customerFirstName: customerName.split(' ')[0] ?? customerName,
       status: deriveStatus(simulation, results, now),
-      salaryCents: simulation.salaryCents,
       requestedAmountCents: simulation.requestedAmountCents,
       termMonths: simulation.termMonths,
       createdAt: simulation.createdAt,
@@ -164,6 +163,7 @@ export class ViewBuilder {
     return {
       ...base,
       origin: details.simulation.origin,
+      salaryCents: details.simulation.salaryCents,
       employerCnpj: details.simulation.employerCnpj,
       customer: {
         name: details.customer.name,

@@ -26,7 +26,6 @@ export const publicSimulationSchema = z.object({
   id: z.string(),
   customerFirstName: z.string(),
   status: statusSchema,
-  salaryCents: z.number(),
   requestedAmountCents: z.number(),
   termMonths: z.number(),
   createdAt: z.string(),

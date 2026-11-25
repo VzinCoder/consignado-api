@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ApiError, api, type BankResultView, type PublicSimulation } from '@/lib/api-client';
 import { formatMoney, formatShortDate } from '@/lib/format';
-import { loanTermsQuery } from '@/lib/search-params';
+import { loadLoanTerms, saveLoanTerms } from '@/lib/loan-terms';
 
 const POLL_INTERVAL_MS = 2000;
 const HOUR_MS = 3_600_000;
@@ -91,6 +91,15 @@ export function SimulationView({ id }: { id: string }) {
   // The API already sends approved offers from the best to the worst.
   const approved = simulation.results.filter((r) => r.status === 'APPROVED');
   const others = simulation.results.filter((r) => r.status !== 'APPROVED');
+  // The API does not send the salary: reuse the one typed in this tab, if any.
+  const editSimulation = () => {
+    saveLoanTerms({
+      salaryCents: loadLoanTerms()?.salaryCents ?? 0,
+      requestedAmountCents: simulation.requestedAmountCents,
+      termMonths: simulation.termMonths,
+    });
+    router.push('/');
+  };
   const subtitle = `${formatMoney(simulation.requestedAmountCents)} em ${simulation.termMonths} meses · simulação de ${
     expired ? formatShortDate(simulation.createdAt) : simulation.customerFirstName
   }`;
@@ -103,16 +112,8 @@ export function SimulationView({ id }: { id: string }) {
           <p className="text-muted-foreground">{subtitle}</p>
         </div>
         {!expired && (
-          <Button variant="outline" asChild>
-            <Link
-              href={`/?${loanTermsQuery({
-                salaryCents: simulation.salaryCents,
-                requestedAmountCents: simulation.requestedAmountCents,
-                termMonths: simulation.termMonths,
-              })}`}
-            >
-              <Pencil /> Editar simulação
-            </Link>
+          <Button variant="outline" onClick={editSimulation}>
+            <Pencil /> Editar simulação
           </Button>
         )}
       </div>

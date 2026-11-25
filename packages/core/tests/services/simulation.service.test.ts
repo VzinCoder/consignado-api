@@ -100,6 +100,7 @@ describe('SimulationService.getPublic', () => {
     expect(serialized).not.toContain(validRequest.cpf);
     expect(serialized).not.toContain(validRequest.email);
     expect(serialized).not.toContain(validRequest.phone);
+    expect(view).not.toHaveProperty('salaryCents');
 
     expect(view.status).toBe('COMPLETED');
     expect(view.customerFirstName).toBe('Ana');
