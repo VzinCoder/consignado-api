@@ -3,3 +3,5 @@ packages:
   - 'packages/*'
 minimumReleaseAgeExclude:
   - '@types/node@24.19.3'
+allowBuilds:
+  esbuild: true
