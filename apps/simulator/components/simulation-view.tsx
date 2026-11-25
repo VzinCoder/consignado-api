@@ -68,7 +68,8 @@ export function SimulationView({ id }: { id: string }) {
     );
   }
 
-  if (query.isError) {
+  // A failed poll keeps the results already on screen; only a first load failure shows this card.
+  if (!query.data) {
     const notFound = query.error instanceof ApiError && query.error.status === 404;
     return (
       <Card className="items-center gap-4 p-12 text-center">
@@ -162,7 +163,12 @@ export function SimulationView({ id }: { id: string }) {
                   key={result.bankSlug}
                   result={result}
                   chosen={simulation.chosenBankSlug === result.bankSlug}
-                  disabled={interest.isPending}
+                  // One choice per simulation: after it, the other offers no longer accept interest.
+                  disabled={
+                    interest.isPending ||
+                    (simulation.chosenBankSlug !== null &&
+                      simulation.chosenBankSlug !== result.bankSlug)
+                  }
                   onInterest={() => setSelected(result)}
                 />
               ))}
