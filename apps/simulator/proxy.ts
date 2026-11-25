@@ -1,5 +1,5 @@
-import { getEnv } from '@zelafin/infra/env';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getSimulatorEnv } from './lib/env';
 import { SESSION_COOKIE, verifySessionToken } from './lib/session';
 
 const PUBLIC_ADMIN_PATHS = ['/admin/login', '/api/admin/login'];
@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
   if (PUBLIC_ADMIN_PATHS.includes(pathname)) return NextResponse.next();
 
   const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const session = await verifySessionToken(token, getEnv().SESSION_SECRET);
+  const session = await verifySessionToken(token, getSimulatorEnv().SESSION_SECRET);
   if (session) return NextResponse.next();
 
   if (pathname.startsWith('/api/')) {

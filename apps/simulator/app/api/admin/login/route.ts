@@ -1,6 +1,6 @@
-import { getEnv } from '@zelafin/infra/env';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
+import { getSimulatorEnv } from '@/lib/env';
 import { errorJson, invalidRequest } from '@/lib/http-error';
 import { getContainer, handle, readJson } from '@/lib/server';
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, createSessionToken, safeEqual } from '@/lib/session';
@@ -15,7 +15,7 @@ export function POST(request: Request) {
     const parsed = loginSchema.safeParse(await readJson(request));
     if (!parsed.success) return invalidRequest(parsed.error);
 
-    const env = getEnv();
+    const env = getSimulatorEnv();
     const [userOk, passwordOk] = await Promise.all([
       safeEqual(parsed.data.username.toLowerCase(), env.ADMIN_USERNAME.toLowerCase()),
       safeEqual(parsed.data.password, env.ADMIN_PASSWORD),

@@ -25,7 +25,7 @@ jobs:
 
     env:
       DATABASE_URL: postgres://zelafin:zelafin@localhost:5432/zelafin
-      ADMIN_USERNAME: admin
+      ADMIN_USERNAME: admin@zelafin.com.br
       ADMIN_PASSWORD: ci-admin-password
       SESSION_SECRET: ci-session-secret-with-at-least-32-chars
       LOG_LEVEL: silent

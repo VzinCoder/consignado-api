@@ -1,6 +1,5 @@
 import type { AdminBankResultView, AdminSimulationView } from '@zelafin/core';
 import { ChevronRight, HandHeart, MessageCircle } from 'lucide-react';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/admin/auto-refresh';
 import { Avatar } from '@/components/admin/avatar';
@@ -10,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { bankIcon } from '@/lib/banks';
+import { getSimulatorEnv } from '@/lib/env';
 import { formatCnpj, formatMoney, formatPhone, formatRelative, formatTime } from '@/lib/format';
 import { getContainer, parseId } from '@/lib/server';
 import { cn } from '@/lib/utils';
@@ -113,10 +113,10 @@ export default async function AdminSimulationDetailPage({
   const view = await getContainer().simulationService.getDetails(id);
   const now = new Date();
 
-  const requestHeaders = await headers();
-  const origin = `${requestHeaders.get('x-forwarded-proto') ?? 'http'}://${requestHeaders.get('host') ?? 'localhost:3000'}`;
+  // Configured base URL: the request Host header can be an internal address (proxy) or forged.
+  const simulationUrl = new URL(`/simulacao/${view.id}`, getSimulatorEnv().PUBLIC_APP_URL);
   const firstName = view.customer.name.split(' ')[0] ?? view.customer.name;
-  const whatsappText = `Olá, ${firstName}! Aqui é da Zelafin. Suas ofertas de consignado estão em ${origin}/simulacao/${view.id}`;
+  const whatsappText = `Olá, ${firstName}! Aqui é da Zelafin. Suas ofertas de consignado estão em ${simulationUrl.toString()}`;
   const whatsappUrl = `https://wa.me/${BRAZIL_COUNTRY_CODE}${view.customer.phone}?text=${encodeURIComponent(whatsappText)}`;
 
   const chosen = view.results.find((r) => r.bankSlug === view.chosenBankSlug);

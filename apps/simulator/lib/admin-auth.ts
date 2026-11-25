@@ -1,13 +1,13 @@
 import 'server-only';
-import { getEnv } from '@zelafin/infra/env';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { getSimulatorEnv } from './env';
 import { unauthorized } from './http-error';
 import { SESSION_COOKIE, verifySessionToken, type Session } from './session';
 
 export async function getAdminSession(): Promise<Session | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  return verifySessionToken(token, getEnv().SESSION_SECRET);
+  return verifySessionToken(token, getSimulatorEnv().SESSION_SECRET);
 }
 
 /** For admin pages: second layer after proxy.ts. */

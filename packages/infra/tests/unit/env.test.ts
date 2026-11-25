@@ -5,9 +5,6 @@ import { InvalidEnvError, parseEnv } from '../../src/env';
 
 const validEnv = {
   DATABASE_URL: 'postgres://zelafin:zelafin@localhost:5432/zelafin',
-  ADMIN_USERNAME: 'admin',
-  ADMIN_PASSWORD: 'senha-forte',
-  SESSION_SECRET: 'x'.repeat(32),
 };
 
 describe('parseEnv', () => {
@@ -40,8 +37,8 @@ describe('parseEnv', () => {
     expect(() => parseEnv({ ...validEnv, BANK_TIMEOUT_MS: 'abc' })).toThrow(/BANK_TIMEOUT_MS/);
   });
 
-  it('fails naming SESSION_SECRET when shorter than 32 characters', () => {
-    expect(() => parseEnv({ ...validEnv, SESSION_SECRET: 'curto' })).toThrow(/SESSION_SECRET/);
+  it('does not require admin settings (migrations and seed run without them)', () => {
+    expect(() => parseEnv(validEnv)).not.toThrow();
   });
 
   it('accepts the .env.example file as is', () => {
