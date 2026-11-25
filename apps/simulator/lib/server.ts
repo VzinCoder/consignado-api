@@ -17,8 +17,8 @@ export async function readJson(request: Request): Promise<unknown> {
 }
 
 /** Ids are UUIDs; anything else cannot exist (and would make Postgres throw). */
-export function parseId(id: string): string {
-  if (!z.uuid().safeParse(id).success) throw new NotFoundError('Simulação');
+export function parseId(id: string, entity = 'Simulação'): string {
+  if (!z.uuid().safeParse(id).success) throw new NotFoundError(entity);
   return id;
 }
 

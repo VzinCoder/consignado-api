@@ -108,7 +108,7 @@ export class BankQueryService {
   /** Manual retry by the admin: only FAILED results of non-expired simulations. */
   async retry(bankResultId: string): Promise<BankResult | null> {
     const result = await this.deps.bankResults.findById(bankResultId);
-    if (!result) throw new NotFoundError('Resultado');
+    if (!result) throw new NotFoundError('Resposta do banco');
     const data = await this.deps.simulations.findById(result.simulationId);
     if (!data) throw new NotFoundError('Simulação');
 
