@@ -1,0 +1,76 @@
+# Compose de produção para deploy no Coolify (PostgreSQL + bancos fictícios + simulador).
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zelafin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zelafin}
+      POSTGRES_DB: ${POSTGRES_DB:-zelafin}
+    volumes:
+      - zelafin-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  bank-mocks:
+    build: .
+    restart: unless-stopped
+    command: pnpm --filter @zelafin/bank-mocks start
+    environment:
+      NODE_ENV: production
+      BANK_MOCKS_PORT: 4000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    expose:
+      - '4000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  simulator:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      bank-mocks:
+        condition: service_healthy
+    command: >-
+      sh -c "pnpm db:migrate && pnpm --filter @zelafin/simulator exec next start --hostname 0.0.0.0 --port 3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-zelafin}:${POSTGRES_PASSWORD:-zelafin}@postgres:5432/${POSTGRES_DB:-zelafin}
+      BANK_MOCKS_URL: http://bank-mocks:4000
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SESSION_SECRET: ${SESSION_SECRET}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    expose:
+      - '3000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  zelafin-pgdata:

@@ -1,0 +1,17 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+.vscode
+.claude
+.playwright-mcp
+.turbo
+node_modules
+**/node_modules
+apps/simulator/.next
+dist
+coverage
+docs
+openspec
+CLAUDE.md
