@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { behave, evaluate, toCents, toReais, type BankProfile } from '../engine';
 import type { BankRouteDeps } from './types';
 
-/** Ipê Bank: digital, fast and stable. English JSON, values in reais, rate as decimal. */
+/** Ipê Bank: digital, rápido e estável. JSON em inglês, valores em reais, taxa em decimal. */
 export const ipeProfile: BankProfile = {
   minMonthlyRate: 0.0169,
   maxMonthlyRate: 0.0199,

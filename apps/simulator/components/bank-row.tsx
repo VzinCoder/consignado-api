@@ -21,7 +21,7 @@ const COPY = {
   },
 } as const;
 
-/** Compact line for pending, rejected and unavailable banks (Pencil "Bank Row"). */
+/** Linha compacta para bancos pendentes, recusados e indisponíveis (componente "Bank Row" no Pencil). */
 export function BankRow({ result }: { result: BankResultView }) {
   if (result.status === 'APPROVED') return null;
   const copy = COPY[result.status];

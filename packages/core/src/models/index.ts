@@ -1,4 +1,4 @@
-/** Money is always integer cents; rates are monthly decimals (0.0189 = 1.89% a.m.). */
+/** Valores monetários são sempre centavos inteiros; taxas são decimais mensais (0.0189 = 1,89% a.m.). */
 
 export interface Customer {
   id: string;
@@ -58,10 +58,10 @@ export interface SimulationDetails extends SimulationWithResults {
   customer: Customer;
 }
 
-/** Derived on read, never stored. */
+/** Calculado na leitura, nunca salvo no banco. */
 export type SimulationStatus = 'PROCESSING' | 'COMPLETED' | 'INTERESTED' | 'EXPIRED';
 
-/** What a bank answered, already translated by its provider. */
+/** O que um banco respondeu, já traduzido pelo seu provider. */
 export type BankQuote =
   | { outcome: 'APPROVED'; offer: Offer; raw: unknown }
   | { outcome: 'REJECTED'; reason: string; raw: unknown };

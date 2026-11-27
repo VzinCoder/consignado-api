@@ -39,7 +39,7 @@ export default async function AdminSimulationsPage({
         </p>
       </div>
 
-      {/* Plain GET form: filters live in the URL, no client state needed. */}
+      {/* Formulário GET simples: os filtros ficam na URL, sem precisar de estado no cliente. */}
       <form className="flex flex-wrap items-center gap-3" role="search">
         <div className="relative w-full max-w-[360px]">
           <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />

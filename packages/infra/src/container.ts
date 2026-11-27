@@ -23,13 +23,13 @@ export interface Container {
 
 const systemClock = { now: () => new Date() };
 
-/** The only place that instantiates implementations and wires the services. */
+/** Único lugar que instancia implementações e conecta os serviços. */
 export function createContainer(env: Env): Container {
   const { db, close } = createDatabase(env.DATABASE_URL);
   const logger = new PinoLogger(createPino(env.LOG_LEVEL));
 
   const providerOptions = { baseUrl: env.BANK_MOCKS_URL, timeoutMs: env.BANK_TIMEOUT_MS };
-  // New bank = new provider + one line here.
+  // Novo banco = novo provider + uma linha aqui.
   const providers: BankProvider[] = [
     new IpeProvider(providerOptions),
     new MandacaruProvider(providerOptions),
@@ -63,11 +63,11 @@ export function createContainer(env: Env): Container {
 }
 
 declare global {
-  // Survives Next.js hot reload in dev so we don't open a new pool on every change.
+  // Sobrevive ao hot reload do Next.js em dev para não abrir um novo pool a cada alteração.
   var __zelafinContainer: Container | undefined;
 }
 
-/** Lazily creates the container on first use (never at import time: `next build` has no database). */
+/** Cria o container sob demanda no primeiro uso (nunca no import: `next build` não tem banco). */
 export function getContainer(): Container {
   globalThis.__zelafinContainer ??= createContainer(getEnv());
   return globalThis.__zelafinContainer;

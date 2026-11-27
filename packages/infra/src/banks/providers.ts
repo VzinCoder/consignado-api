@@ -190,7 +190,7 @@ export class CarcaraProvider extends HttpBankProvider<z.infer<typeof carcaraSche
   protected readonly path = '/carcara/proposta';
   protected readonly responseSchema = carcaraSchema;
 
-  /** Carcará always answers 200; only a real HTTP error status (proxy, crash) fails here. */
+  /** Carcará sempre responde 200; apenas um erro HTTP real (proxy, queda) falha aqui. */
   protected override checkStatus(response: HttpResponse): void {
     if (response.status >= 500) throw new BankIntegrationError(`HTTP ${response.status}`);
   }

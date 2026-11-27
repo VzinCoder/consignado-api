@@ -10,7 +10,7 @@ interface FieldProps {
   children: React.ReactNode;
 }
 
-/** Label + input with a leading icon and an inline error, as in the Pencil "Input Group". */
+/** Rótulo + campo de entrada com ícone à esquerda e erro inline, conforme o "Input Group" no Pencil. */
 export function Field({ id, label, icon: Icon, error, children }: FieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -39,7 +39,7 @@ export function Field({ id, label, icon: Icon, error, children }: FieldProps) {
   );
 }
 
-/** Links the input to its error message, so screen readers announce it with the field. */
+/** Vincula o campo à sua mensagem de erro para que leitores de tela a anunciem junto com o campo. */
 export const errorProps = (id: string, error?: string) => ({
   'aria-invalid': error ? true : undefined,
   'aria-describedby': error ? `${id}-error` : undefined,

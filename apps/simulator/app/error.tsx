@@ -4,7 +4,7 @@ import { TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-/** Unexpected failures (e.g. database offline) show this page instead of the framework default. */
+/** Falhas inesperadas (ex.: banco de dados fora do ar) exibem esta página em vez do padrão do framework. */
 export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">

@@ -50,7 +50,7 @@ type TextField = 'name' | 'cpf' | 'phone' | 'email' | 'employerCnpj';
 
 const idSchema = z.object({ id: z.string() });
 
-/** Screen 14: the team creates a simulation for a customer served by phone or WhatsApp. */
+/** Tela 14: a equipe cria uma simulação para um cliente atendido por telefone ou WhatsApp. */
 export function NewSimulationForm() {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);

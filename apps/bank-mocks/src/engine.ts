@@ -1,6 +1,6 @@
 /**
- * Shared rules of the fictional banks. Each bank file only translates its own contract.
- * This app represents third-party systems, so it intentionally does not import @zelafin/* packages.
+ * Regras compartilhadas dos bancos fictícios. Cada arquivo de banco só traduz seu próprio contrato.
+ * Este app representa sistemas de terceiros, então propositalmente não importa pacotes @zelafin/*.
  */
 
 const RATE_DECIMALS = 4;
@@ -9,7 +9,7 @@ const CPF_FORCE_SLOW_DIGIT = '8';
 const CPF_FORCE_ERROR_DIGIT = '9';
 const LATENCY_JITTER = 0.3;
 
-/** Twice the default client timeout (5 s), so the caller always times out. */
+/** O dobro do timeout padrão do cliente (5 s), para que o chamador sempre estoure o tempo. */
 export const SLOW_RESPONSE_MS = 10_000;
 
 export interface BankProfile {
@@ -77,7 +77,7 @@ export function priceInstallmentCents(
   return Math.round((principalCents * monthlyRate) / (1 - (1 + monthlyRate) ** -months));
 }
 
-/** Rate grows linearly with the term inside the bank's range. */
+/** A taxa cresce linearmente conforme o prazo dentro da faixa do banco. */
 export function rateForTerm(profile: BankProfile, termMonths: number): number {
   const span = profile.maxTermMonths - profile.minTermMonths;
   const position = span === 0 ? 0 : (termMonths - profile.minTermMonths) / span;
@@ -147,7 +147,7 @@ export function evaluate(profile: BankProfile, request: LoanRequest): Evaluation
   };
 }
 
-/** Waits like a real bank would and tells whether this call must fail. */
+/** Aguarda como um banco real faria e informa se esta chamada deve falhar. */
 export async function behave(
   behavior: BankBehavior,
   runtime: Runtime,

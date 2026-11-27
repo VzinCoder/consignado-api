@@ -1,4 +1,4 @@
-/** Consignado limits and Price (French amortization) math. All money in cents. */
+/** Limites do consignado e matemática da Tabela Price (amortização francesa). Tudo em centavos. */
 
 export const MARGIN_RATIO = 0.35;
 export const MIN_SALARY_CENTS = 100_000;
@@ -23,7 +23,7 @@ export function priceInstallmentCents(
   return Math.round((principalCents * monthlyRate) / (1 - (1 + monthlyRate) ** -months));
 }
 
-/** Largest principal whose installment fits `installmentCents`, rounded down to whole reais. */
+/** Maior valor principal cuja parcela cabe em `installmentCents`, arredondado para baixo em reais inteiros. */
 export function maxPrincipalCents(
   installmentCents: number,
   monthlyRate: number,
@@ -44,8 +44,8 @@ export interface MarginCheck {
 }
 
 /**
- * Pre-filter: estimates the installment with the lowest rate among banks.
- * If even that does not fit the margin, no bank would approve. When in doubt, let it pass.
+ * Pré-filtro: estima a parcela com a menor taxa entre os bancos.
+ * Se nem assim couber na margem, nenhum banco aprovaria. Na dúvida, deixa passar.
  */
 export function checkMargin(
   salaryCents: number,

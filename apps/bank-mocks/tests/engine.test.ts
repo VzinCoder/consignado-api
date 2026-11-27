@@ -19,7 +19,7 @@ const request = {
 
 describe('priceInstallmentCents', () => {
   it('calculates the Price installment', () => {
-    // R$ 10.000 at 2% for 12 months = R$ 945,60
+    // R$ 10.000 a 2% por 12 meses = R$ 945,60
     expect(priceInstallmentCents(1_000_000, 0.02, 12)).toBe(94_560);
   });
 

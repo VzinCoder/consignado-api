@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Design tokens extracted from the Pencil file (zelafin.pen). */
+/* Tokens de design extraídos do arquivo Pencil (zelafin.pen). */
 :root {
   --radius: 0.5rem;
   --background: #faf9f5;

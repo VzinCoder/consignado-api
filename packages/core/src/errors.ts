@@ -2,7 +2,7 @@ import { MARGIN_RATIO } from './rules/loan';
 
 const PERCENT = 100;
 
-/** Business errors carry a stable `code`; apps translate them to HTTP in one place. */
+/** Erros de negócio carregam um `code` estável; os apps traduzem para HTTP em um único lugar. */
 export abstract class DomainError extends Error {
   abstract readonly code: string;
 }
@@ -29,7 +29,7 @@ export class MarginExceededError extends DomainError {
 export const SIMULATION_NOT_FOUND = 'Simulação não encontrada.';
 export const BANK_RESULT_NOT_FOUND = 'Resposta do banco não encontrada.';
 
-/** Takes the whole sentence, so each entity keeps its own grammar. */
+/** Recebe a frase completa para que cada entidade mantenha sua própria concordância. */
 export class NotFoundError extends DomainError {
   readonly code = 'NOT_FOUND';
   constructor(message: string) {
@@ -79,8 +79,8 @@ export class BankResultNotRetryableError extends DomainError {
 }
 
 /**
- * Technical failure talking to a bank (timeout, network, 5xx, out-of-contract response).
- * Providers throw it; the core turns it into a FAILED result.
+ * Falha técnica ao falar com um banco (timeout, rede, 5xx, resposta fora do contrato).
+ * Os providers lançam este erro; o core transforma em um resultado FAILED.
  */
 export class BankIntegrationError extends Error {
   constructor(readonly reason: string) {
@@ -90,8 +90,8 @@ export class BankIntegrationError extends Error {
 }
 
 /**
- * Matches a domain error by its stable code. Prefer it over `instanceof` across module boundaries:
- * in Next.js, a server component and the cached container may hold different copies of this module.
+ * Compara um erro de domínio pelo seu código estável. Prefira isto a `instanceof` entre fronteiras de módulos:
+ * no Next.js, um Server Component e o container em cache podem carregar cópias diferentes deste módulo.
  */
 export function hasErrorCode(error: unknown, code: string): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === code;

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-/** Browser-side client: every response is `unknown` until validated by a schema. */
+/** Cliente do navegador: toda resposta é `unknown` até ser validada por um schema. */
 
 const statusSchema = z.enum(['PROCESSING', 'COMPLETED', 'INTERESTED', 'EXPIRED']);
 const resultStatusSchema = z.enum(['PENDING', 'APPROVED', 'REJECTED', 'FAILED']);

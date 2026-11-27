@@ -10,14 +10,14 @@ export async function getAdminSession(): Promise<Session | null> {
   return verifySessionToken(token, getSimulatorEnv().SESSION_SECRET);
 }
 
-/** For admin pages: second layer after proxy.ts. */
+/** Para páginas do admin: segunda camada de proteção após o proxy.ts. */
 export async function requireAdminPage(): Promise<Session> {
   const session = await getAdminSession();
   if (!session) redirect('/admin/login');
   return session;
 }
 
-/** For admin API routes: returns a 401 response when there is no valid session. */
+/** Para rotas de API do admin: retorna resposta 401 quando não há sessão válida. */
 export async function adminApiGuard(): Promise<Response | null> {
   return (await getAdminSession()) ? null : unauthorized();
 }

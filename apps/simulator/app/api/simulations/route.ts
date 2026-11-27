@@ -14,7 +14,7 @@ export function POST(request: Request) {
     const { simulationService, bankQueryService } = getContainer();
     const { id } = await simulationService.create({ ...parsed.data, origin: 'CUSTOMER' });
 
-    // Bank queries start right after the response, on this same server (no queue in the MVP).
+    // As consultas aos bancos começam logo após a resposta, neste mesmo servidor (sem fila no MVP).
     after(() => bankQueryService.querySimulation(id));
     return Response.json({ id }, { status: 201 });
   });

@@ -1,7 +1,7 @@
 import type { LogContext, Logger } from '@zelafin/core';
 import { pino, type Logger as Pino } from 'pino';
 
-/** Safety net: personal fields are censored even if someone logs them by mistake. */
+/** Rede de segurança: campos pessoais são censurados mesmo se alguém logá-los por engano. */
 export const REDACTED_FIELDS = ['cpf', 'email', 'phone', 'salaryCents', 'name'];
 
 export function createPino(level: string, destination?: NodeJS.WritableStream): Pino {
@@ -16,7 +16,7 @@ export function createPino(level: string, destination?: NodeJS.WritableStream): 
   return destination ? pino(options, destination) : pino(options);
 }
 
-/** Adapter from pino to the core Logger port. */
+/** Adaptador do pino para a porta Logger do core. */
 export class PinoLogger implements Logger {
   constructor(private readonly pino: Pino) {}
 

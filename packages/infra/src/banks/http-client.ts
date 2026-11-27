@@ -19,9 +19,9 @@ function isTimeout(error: unknown): boolean {
 }
 
 /**
- * POSTs JSON and returns status + parsed body. HTTP status is NOT judged here:
- * some banks (Carcará) answer 200 for errors, so each provider decides.
- * Timeout, network failure and non-JSON bodies become BankIntegrationError.
+ * Envia POST com JSON e retorna status + corpo parseado. O status HTTP NÃO é julgado aqui:
+ * alguns bancos (Carcará) respondem 200 mesmo em erros, então cada provider decide.
+ * Timeout, falha de rede e corpo que não é JSON viram BankIntegrationError.
  */
 export async function postJson(
   url: string,

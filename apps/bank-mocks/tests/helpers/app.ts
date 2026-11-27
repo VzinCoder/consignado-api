@@ -2,7 +2,7 @@ import { buildApp } from '../../src/app';
 import type { BankSlug } from '../../src/config';
 import type { BankBehavior, Runtime } from '../../src/engine';
 
-/** CPFs whose last digit forces the outcome (see engine.forcedOutcome). */
+/** CPFs cujo último dígito força o resultado (ver engine.forcedOutcome). */
 export const OK_CPF = '52998224725';
 export const REJECT_CPF = '52998224720';
 export const ERROR_CPF = '52998224729';
@@ -16,7 +16,7 @@ const banks: Record<BankSlug, BankBehavior> = {
   carcara: stable,
 };
 
-/** Builds the mocks app with no latency and no random errors, injecting requests in memory. */
+/** Monta o app de mocks sem latência e sem erros aleatórios, injetando requisições em memória. */
 export function createTestApp() {
   const app = buildApp({ config: { banks, logLevel: 'silent' }, runtime: instant });
 

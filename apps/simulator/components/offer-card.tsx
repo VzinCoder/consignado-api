@@ -14,7 +14,7 @@ interface Props {
   onInterest: () => void;
 }
 
-/** Approved offer, as the Pencil "Offer Card" component. */
+/** Oferta aprovada, conforme o componente "Offer Card" no Pencil. */
 export function OfferCard({ result, chosen, disabled, onInterest }: Props) {
   const { offer } = result;
   if (!offer) return null;

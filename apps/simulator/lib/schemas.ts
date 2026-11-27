@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 /**
- * Shape-only validation shared by forms and route handlers.
- * Business rules (CPF digits, margin, limits) live in @zelafin/core.
+ * Validação apenas de formato compartilhada por formulários e route handlers.
+ * As regras de negócio (dígitos do CPF, margem, limites) ficam em @zelafin/core.
  */
 
 export const loanTermsSchema = z.object({

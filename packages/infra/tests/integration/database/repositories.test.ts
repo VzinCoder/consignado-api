@@ -1,6 +1,6 @@
 /**
- * Integration tests against a real Postgres, in the separate <database>_test created by
- * global-setup.ts. Skipped when DATABASE_URL is not set.
+ * Testes de integração contra um Postgres real, no banco separado <database>_test criado por
+ * global-setup.ts. Pulado quando DATABASE_URL não está definida.
  */
 import { inArray } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
@@ -13,7 +13,7 @@ import {
 import { customers, simulations } from '../../../src/database/schema';
 
 const DATABASE_URL = inject('testDatabaseUrl');
-// Valid fictional CPFs reserved for these tests.
+// CPFs fictícios válidos reservados para estes testes.
 const CPF_A = '39053344705';
 const CPF_B = '15350946056';
 

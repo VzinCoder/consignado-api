@@ -43,7 +43,7 @@ export default defineConfig(
   {
     files: ['**/*.test.ts'],
     rules: {
-      // Vitest asymmetric matchers (expect.any) are typed as any.
+      // Matchers assimétricos do Vitest (expect.any) são tipados como any.
       '@typescript-eslint/no-unsafe-assignment': 'off',
     },
   },

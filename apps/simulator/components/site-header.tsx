@@ -22,7 +22,7 @@ export function SiteHeader() {
             <Link href="/#como-funciona">Como funciona</Link>
           </Button>
           <Button variant="ghost" asChild>
-            {/* Team access only: customers reach their offers through the link they receive. */}
+            {/* Acesso exclusivo da equipe: clientes acessam suas ofertas pelo link que recebem. */}
             <Link href="/admin">
               <User /> Área da equipe
             </Link>

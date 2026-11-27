@@ -1,13 +1,13 @@
-# Dependencies
+# Dependências
 node_modules/
 .pnpm-store/
 
-# Environment variables (keep only the example)
+# Variáveis de ambiente (manter apenas o exemplo)
 .env
 .env.*
 !.env.example
 
-# Build output
+# Saída de build
 .next/
 out/
 dist/
@@ -18,7 +18,7 @@ next-env.d.ts
 # Turborepo
 .turbo/
 
-# Tests and coverage
+# Testes e cobertura
 coverage/
 test-results/
 playwright-report/
@@ -28,13 +28,13 @@ playwright-report/
 npm-debug.log*
 pnpm-debug.log*
 
-# OS and editors
+# Sistema operacional e editores
 .DS_Store
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
 
-# Misc
+# Diversos
 *.pem
 .vercel/

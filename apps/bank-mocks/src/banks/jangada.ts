@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { behave, evaluate, type BankProfile } from '../engine';
 import type { BankRouteDeps } from './types';
 
-/** Jangada Crédito: slower. Envelope { data, meta }, values in cents, status codes "A"/"R". */
+/** Jangada Crédito: mais lento. Envelope { data, meta }, valores em centavos, status "A"/"R". */
 export const jangadaProfile: BankProfile = {
   minMonthlyRate: 0.0179,
   maxMonthlyRate: 0.0209,

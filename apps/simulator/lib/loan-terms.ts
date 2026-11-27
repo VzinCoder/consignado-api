@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { LoanTerms } from './schemas';
 
-/** Defaults shown on the Landing (same values as the Pencil frame). */
+/** Valores padrão exibidos na Landing (mesmos valores do frame no Pencil). */
 export const DEFAULT_LOAN_TERMS: LoanTerms = {
   salaryCents: 350_000,
   requestedAmountCents: 500_000,
@@ -9,8 +9,8 @@ export const DEFAULT_LOAN_TERMS: LoanTerms = {
 };
 
 /**
- * The salary is personal data, so the loan terms travel between steps in the tab's sessionStorage,
- * never in the URL (browser history, server logs and Referer would keep it).
+ * O salário é um dado pessoal, então os termos do empréstimo trafegam entre etapas no sessionStorage da aba,
+ * nunca na URL (histórico do navegador, logs do servidor e Referer manteriam esse dado).
  */
 const STORAGE_KEY = 'zelafin:loan-terms';
 
@@ -24,7 +24,7 @@ export function saveLoanTerms(terms: LoanTerms): void {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(terms));
   } catch {
-    // Storage blocked (private mode): the customer just types the values again.
+    // Armazenamento bloqueado (modo anônimo): o cliente apenas digita os valores novamente.
   }
 }
 

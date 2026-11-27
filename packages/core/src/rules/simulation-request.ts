@@ -56,7 +56,7 @@ export function validateLoanTerms(terms: LoanTerms): LoanTerms {
   return terms;
 }
 
-/** Validates and normalizes (trims, keeps only digits) a full simulation request. */
+/** Valida e normaliza (remove espaços extras e mantém apenas dígitos) uma requisição completa de simulação. */
 export function validateSimulationRequest(input: SimulationRequest): SimulationRequest {
   const normalized: SimulationRequest = {
     ...input,

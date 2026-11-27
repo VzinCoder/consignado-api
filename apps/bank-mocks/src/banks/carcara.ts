@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { behave, evaluate, toCents, toReais, type BankProfile } from '../engine';
 import type { BankRouteDeps } from './types';
 
-/** Carcará Financeira: unstable, highest rate. Always HTTP 200; errors come in the body. */
+/** Carcará Financeira: instável, maior taxa. Sempre retorna HTTP 200; erros vêm no corpo. */
 export const carcaraProfile: BankProfile = {
   minMonthlyRate: 0.0199,
   maxMonthlyRate: 0.0249,

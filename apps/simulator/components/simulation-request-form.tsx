@@ -30,7 +30,7 @@ export function SimulationRequestForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Back from step 2 or "Editar simulação": restore what the customer typed in this tab.
+  // Voltando da etapa 2 ou de "Editar simulação": restaura o que o cliente digitou nesta aba.
   useEffect(() => {
     const stored = loadLoanTerms();
     if (stored) reset(stored);

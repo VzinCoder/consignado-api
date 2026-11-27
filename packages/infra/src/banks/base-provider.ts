@@ -17,7 +17,7 @@ export interface ProviderOptions {
 export const toCents = (reais: number) => Math.round(reais * CENTS_PER_REAL);
 export const toReais = (cents: number) => cents / CENTS_PER_REAL;
 
-/** Template for the 4 banks: each one only maps its request, path and response. */
+/** Modelo base para os 4 bancos: cada um mapeia apenas sua requisição, rota e resposta. */
 export abstract class HttpBankProvider<TResponse> implements BankProvider {
   abstract readonly slug: string;
   abstract readonly name: string;
@@ -30,7 +30,7 @@ export abstract class HttpBankProvider<TResponse> implements BankProvider {
   protected abstract buildRequest(request: BankQuoteRequest): unknown;
   protected abstract toQuote(response: TResponse, raw: unknown): BankQuote;
 
-  /** Default: 4xx/5xx is a technical failure. Carcará overrides (always 200). */
+  /** Padrão: 4xx/5xx é falha técnica. Carcará sobrescreve (sempre retorna 200). */
   protected checkStatus(response: HttpResponse): void {
     if (response.status >= 400) throw new BankIntegrationError(`HTTP ${response.status}`);
   }

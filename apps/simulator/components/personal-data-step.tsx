@@ -10,10 +10,10 @@ import { formatMoney } from '@/lib/format';
 import { loadLoanTerms } from '@/lib/loan-terms';
 import type { LoanTerms } from '@/lib/schemas';
 
-/** Screen 02. Reads the loan terms saved by the Landing in this tab (never from the URL). */
+/** Tela 02. Lê os dados da simulação salvos pela Landing nesta aba (nunca pela URL). */
 export function PersonalDataStep() {
   const router = useRouter();
-  // undefined = still reading the tab storage (avoids a hydration mismatch).
+  // undefined = ainda lendo o armazenamento da aba (evita divergência na hidratação).
   const [terms, setTerms] = useState<LoanTerms | null | undefined>(undefined);
 
   useEffect(() => {

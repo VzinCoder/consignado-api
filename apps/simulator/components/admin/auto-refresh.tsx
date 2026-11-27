@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 2000;
 
-/** Re-renders the server page while banks are still answering (admin counterpart of polling). */
+/** Re-renderiza a página no servidor enquanto os bancos ainda respondem (equivalente ao polling no admin). */
 export function AutoRefresh({ active }: { active: boolean }) {
   const router = useRouter();
   useEffect(() => {

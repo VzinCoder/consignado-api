@@ -1,7 +1,7 @@
 /**
- * Integration tests run against `<database>_test`, never against the development database.
- * Runs once before the test workers: creates the test database if needed, applies the migrations
- * and hands its URL to the tests (`inject('testDatabaseUrl')`).
+ * Testes de integração rodam contra `<database>_test`, nunca contra o banco de desenvolvimento.
+ * Executa uma vez antes dos workers de teste: cria o banco de teste se necessário, aplica as migrations
+ * e entrega sua URL aos testes (`inject('testDatabaseUrl')`).
  */
 import { fileURLToPath } from 'node:url';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';

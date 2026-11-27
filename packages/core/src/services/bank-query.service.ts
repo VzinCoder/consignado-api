@@ -34,7 +34,7 @@ export class BankQueryService {
     this.providers = new Map(deps.providers.map((p) => [p.slug, p]));
   }
 
-  /** Queries one bank for a PENDING result and stores the outcome. Never throws for bank errors. */
+  /** Consulta um banco para um resultado PENDING e grava o desfecho. Nunca lança exceção por erro de banco. */
   async query(bankResultId: string): Promise<BankResult | null> {
     const result = await this.deps.bankResults.findById(bankResultId);
     if (result?.status !== 'PENDING') return result;
@@ -91,7 +91,7 @@ export class BankQueryService {
     }
   }
 
-  /** Queries every PENDING bank of a simulation in parallel; one failure never stops the others. */
+  /** Consulta todos os bancos PENDING de uma simulação em paralelo; a falha de um nunca interrompe os demais. */
   async querySimulation(simulationId: string): Promise<void> {
     const data = await this.deps.simulations.findById(simulationId);
     if (!data) return;
@@ -107,7 +107,7 @@ export class BankQueryService {
     }
   }
 
-  /** Manual retry by the admin: only FAILED results of non-expired simulations. */
+  /** Reconsulta manual pelo admin: apenas resultados FAILED de simulações não expiradas. */
   async retry(bankResultId: string): Promise<BankResult | null> {
     const result = await this.deps.bankResults.findById(bankResultId);
     if (!result) throw new NotFoundError(BANK_RESULT_NOT_FOUND);

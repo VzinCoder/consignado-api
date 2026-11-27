@@ -6,7 +6,7 @@ import { toErrorResponse } from './http-error';
 
 export { getContainer };
 
-/** Request body as unknown (invalid JSON becomes null and fails schema validation). */
+/** Corpo da requisição como unknown (JSON inválido vira null e falha na validação do schema). */
 export async function readJson(request: Request): Promise<unknown> {
   try {
     const body: unknown = await request.json();
@@ -16,13 +16,13 @@ export async function readJson(request: Request): Promise<unknown> {
   }
 }
 
-/** Ids are UUIDs; anything else cannot exist (and would make Postgres throw). */
+/** Ids são UUIDs; qualquer outro valor não pode existir (e faria o Postgres lançar erro). */
 export function parseId(id: string, notFoundMessage = SIMULATION_NOT_FOUND): string {
   if (!z.uuid().safeParse(id).success) throw new NotFoundError(notFoundMessage);
   return id;
 }
 
-/** Runs a handler and converts any thrown error into the standard JSON error response. */
+/** Executa um handler e converte qualquer erro lançado na resposta JSON padrão de erro. */
 export async function handle(fn: () => Promise<Response>): Promise<Response> {
   try {
     return await fn();

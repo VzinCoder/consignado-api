@@ -63,7 +63,7 @@ describe('SimulationService.create', () => {
 
     expect(error).toBeInstanceOf(MarginExceededError);
     if (!(error instanceof MarginExceededError)) return;
-    // the lowest rate among banks (1.55%) is used for the estimate
+    // a menor taxa entre os bancos (1,55%) é usada para a estimativa
     expect(priceInstallmentCents(error.maxAmountCents, 0.0155, 12)).toBeLessThanOrEqual(70_000);
     expect(store.simulations.size).toBe(0);
   });
@@ -286,9 +286,9 @@ describe('SimulationService admin reads', () => {
 
   it('counts "today" in Brazil time, not in the server time zone', async () => {
     const { simulationService, clock } = setup();
-    clock.set(new Date('2026-11-25T14:00:00Z')); // 11:00 in São Paulo
+    clock.set(new Date('2026-11-25T14:00:00Z')); // 11:00 em São Paulo
     await simulationService.create(validRequest);
-    clock.set(new Date('2026-11-26T01:00:00Z')); // 22:00 of the same day in São Paulo
+    clock.set(new Date('2026-11-26T01:00:00Z')); // 22:00 do mesmo dia em São Paulo
     await simulationService.create({ ...validRequest, cpf: '11144477735' });
 
     const overview = await simulationService.overview();

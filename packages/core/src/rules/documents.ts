@@ -36,7 +36,7 @@ export function isValidCnpj(value: string): boolean {
   return digits[12] === first && digits[13] === second;
 }
 
-/** 12345678909 -> ***.456.789-** (keeps only the middle digits). */
+/** 12345678909 -> ***.456.789-** (mantém apenas os dígitos do meio). */
 export function maskCpf(cpf: string): string {
   const digits = onlyDigits(cpf);
   if (digits.length !== CPF_LENGTH) return '***.***.***-**';

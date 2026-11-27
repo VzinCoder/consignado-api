@@ -7,7 +7,7 @@ interface Props {
   needsRetry: boolean;
 }
 
-/** Admin wording from the Pencil frames (Interessado, Em análise, Respondida, Pendente). */
+/** Rótulos do admin definidos no design Pencil (Interessado, Em análise, Respondida, Pendente). */
 export function adminStatusLabel({ status, needsRetry }: Props): { label: string; tone: string } {
   if (status === 'INTERESTED') {
     return { label: 'Interessado', tone: 'bg-primary text-primary-foreground' };
@@ -21,8 +21,8 @@ export function adminStatusLabel({ status, needsRetry }: Props): { label: string
 }
 
 /**
- * Main status plus a "Reconsultar" marker when a bank failed in a simulation whose main label is
- * not already "Pendente" (e.g. an interested customer): the "Pendente" filter shows all of them.
+ * Status principal mais um marcador "Reconsultar" quando algum banco falhou numa simulação cujo rótulo principal
+ * ainda não é "Pendente" (ex.: um cliente interessado): o filtro "Pendente" mostra todos eles.
  */
 export function StatusBadge(props: Props) {
   const { label, tone } = adminStatusLabel(props);
@@ -50,7 +50,7 @@ export const STATUS_FILTERS = [
 
 export type StatusFilterValue = (typeof STATUS_FILTERS)[number]['value'];
 
-/** Maps the URL filter to the core filter. */
+/** Mapeia o filtro da URL para o filtro do core. */
 export function toCoreFilter(value: string | undefined): {
   status?: SimulationStatus;
   needsRetry?: boolean;

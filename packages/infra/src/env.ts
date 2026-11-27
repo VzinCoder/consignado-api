@@ -3,7 +3,7 @@ import { z } from 'zod';
 const DEFAULT_BANK_TIMEOUT_MS = 5000;
 const DEFAULT_OFFER_TTL_HOURS = 72;
 
-/** Database, banks, deadlines and logs. Admin settings live in the simulator (apps/simulator/lib/env.ts). */
+/** Banco de dados, bancos parceiros, prazos e logs. Configurações de admin ficam no simulador (apps/simulator/lib/env.ts). */
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.url(),
@@ -22,7 +22,7 @@ export class InvalidEnvError extends Error {
   }
 }
 
-/** Validates a raw environment object. Pure: does not read process.env. */
+/** Valida um objeto bruto de ambiente. Puro: não lê process.env. */
 export function parseEnv(source: Record<string, string | undefined>): Env {
   const result = envSchema.safeParse(source);
   if (!result.success) {
@@ -33,7 +33,7 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
 
 let cached: Env | undefined;
 
-/** Reads and validates process.env once, on first use (never at import time). */
+/** Lê e valida process.env uma única vez, no primeiro uso (nunca no import). */
 export function getEnv(): Env {
   cached ??= parseEnv(process.env);
   return cached;

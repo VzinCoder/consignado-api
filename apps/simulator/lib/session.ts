@@ -1,6 +1,6 @@
 /**
- * Admin session: `base64url(payload).base64url(hmac-sha256)`, signed with SESSION_SECRET.
- * Uses Web Crypto only, so it works both in proxy.ts and in route handlers.
+ * Sessão do admin: `base64url(payload).base64url(hmac-sha256)`, assinada com SESSION_SECRET.
+ * Usa apenas Web Crypto, funcionando tanto no proxy.ts quanto nos route handlers.
  */
 
 export const SESSION_COOKIE = 'zelafin_admin';
@@ -75,7 +75,7 @@ function parsePayload(bytes: Uint8Array): { sub: string; exp: number } | null {
   }
 }
 
-/** Returns the session, or null when the token is missing, tampered with or expired. */
+/** Retorna a sessão, ou null quando o token estiver ausente, adulterado ou expirado. */
 export async function verifySessionToken(
   token: string | undefined,
   secret: string,
@@ -106,7 +106,7 @@ async function sha256(value: string): Promise<Uint8Array> {
   return new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value)));
 }
 
-/** Constant-time comparison (hashing first makes both sides the same length). */
+/** Comparação em tempo constante (aplicar hash antes garante o mesmo tamanho nos dois lados). */
 export async function safeEqual(a: string, b: string): Promise<boolean> {
   const [hashA, hashB] = await Promise.all([sha256(a), sha256(b)]);
   let diff = 0;

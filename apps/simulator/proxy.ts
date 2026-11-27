@@ -4,7 +4,7 @@ import { SESSION_COOKIE, verifySessionToken } from './lib/session';
 
 const PUBLIC_ADMIN_PATHS = ['/admin/login', '/api/admin/login'];
 
-/** Protects the admin area: pages redirect to the login, APIs answer 401. */
+/** Protege a área administrativa: páginas redirecionam para o login, APIs respondem 401. */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (PUBLIC_ADMIN_PATHS.includes(pathname)) return NextResponse.next();

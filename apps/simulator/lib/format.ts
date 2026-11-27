@@ -1,6 +1,6 @@
 import { BUSINESS_TIME_ZONE, CENTS_PER_REAL, onlyDigits } from '@zelafin/core';
 
-// Same digit rule as the core validation (masks and validation never disagree).
+// Mesma regra de dígitos da validação do core (máscaras e validação nunca divergem).
 export { onlyDigits };
 
 const PERCENT = 100;
@@ -13,7 +13,7 @@ export const formatMoney = (cents: number) => brl.format(cents / CENTS_PER_REAL)
 export const formatRate = (rate: number) =>
   `${(rate * PERCENT).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% a.m.`;
 
-/** Money input: typed digits are cents ("350000" -> R$ 3.500,00). */
+/** Campo monetário: os dígitos digitados representam centavos ("350000" -> R$ 3.500,00). */
 export const digitsToCents = (value: string) => Number(onlyDigits(value) || '0');
 
 export function formatCpf(value: string): string {
@@ -41,7 +41,7 @@ export function formatPhone(value: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
-// Dates always in Brazil time, so server and browser render the same text.
+// Datas sempre no horário do Brasil, para que servidor e navegador renderizem o mesmo texto.
 const shortDate = new Intl.DateTimeFormat('pt-BR', {
   day: 'numeric',
   month: 'short',

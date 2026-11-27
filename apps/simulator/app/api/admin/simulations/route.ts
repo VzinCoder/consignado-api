@@ -7,7 +7,7 @@ import { getContainer, handle, readJson } from '@/lib/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/** "Simular pelo atendimento": same flow as the customer, with origin ADMIN. */
+/** "Simular pelo atendimento": mesmo fluxo do cliente, mas com origem ADMIN. */
 export function POST(request: Request) {
   return handle(async () => {
     const denied = await adminApiGuard();

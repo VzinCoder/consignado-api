@@ -1,6 +1,6 @@
 import type { BankResult, Offer, Simulation, SimulationStatus } from '../models';
 
-/** Extra time after the bank timeout before a PENDING result is considered stuck. */
+/** Tempo extra após o timeout do banco antes de um resultado PENDING ser considerado travado. */
 export const STALE_GRACE_MS = 30_000;
 export const STALE_FAILURE_REASON = 'timeout';
 
@@ -14,7 +14,7 @@ export function isExpired(simulation: Pick<Simulation, 'expiresAt'>, now: Date):
   return simulation.expiresAt.getTime() <= now.getTime();
 }
 
-/** PENDING results started before this instant are stuck (e.g. server restarted mid-query). */
+/** Resultados PENDING iniciados antes deste instante estão travados (ex.: servidor reiniciou no meio da consulta). */
 export function staleCutoff(now: Date, bankTimeoutMs: number): Date {
   return new Date(now.getTime() - bankTimeoutMs - STALE_GRACE_MS);
 }
@@ -24,7 +24,7 @@ export function deriveStatus(
   results: Pick<BankResult, 'status'>[],
   now: Date,
 ): SimulationStatus {
-  // A customer who chose an offer stays a lead for the team even after the offer validity.
+  // Um cliente que escolheu uma oferta continua sendo um lead para a equipe mesmo após a validade da oferta.
   if (!simulation.chosenBankSlug && isExpired(simulation, now)) return 'EXPIRED';
   if (results.some((r) => r.status === 'PENDING')) return 'PROCESSING';
   if (simulation.chosenBankSlug) return 'INTERESTED';
@@ -37,7 +37,7 @@ export function isApproved(result: BankResult): result is ApprovedResult {
   return result.status === 'APPROVED' && result.offer !== null;
 }
 
-/** Lowest total paid first; ties go to the lowest installment. */
+/** Menor total pago primeiro; em caso de empate, vence a menor parcela. */
 export function compareOffers(a: ApprovedResult, b: ApprovedResult): number {
   return (
     a.offer.totalCents - b.offer.totalCents || a.offer.installmentCents - b.offer.installmentCents
@@ -46,7 +46,7 @@ export function compareOffers(a: ApprovedResult, b: ApprovedResult): number {
 
 export type RequestedTerms = Pick<Simulation, 'requestedAmountCents' | 'termMonths'>;
 
-/** An offer for another amount or term is shown, but it is not comparable by total paid. */
+/** Uma oferta para outro valor ou prazo é exibida, mas não é comparável pelo total pago. */
 const matchesRequest = (result: ApprovedResult, request: RequestedTerms) =>
   result.offer.approvedAmountCents === request.requestedAmountCents &&
   result.offer.termMonths === request.termMonths;

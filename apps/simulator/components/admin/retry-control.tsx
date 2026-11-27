@@ -18,7 +18,7 @@ const OUTCOME: Record<z.infer<typeof retrySchema>['status'], string> = {
   PENDING: 'O banco ainda está respondendo.',
 };
 
-/** Screen 13: retries a FAILED bank and refreshes the server-rendered page. */
+/** Tela 13: reconsulta um banco FAILED e atualiza a página renderizada no servidor. */
 export function RetryControl({
   bankResultId,
   bankName,

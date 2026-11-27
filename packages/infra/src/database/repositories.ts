@@ -37,7 +37,7 @@ type BankResultRow = typeof bankResults.$inferSelect;
 const toCustomer = (row: CustomerRow): Customer => ({ ...row });
 const toSimulation = (row: SimulationRow): Simulation => ({ ...row });
 
-/** The offer columns are nullable: only an APPROVED row with all of them filled has an offer. */
+/** As colunas de oferta podem ser nulas: apenas uma linha APPROVED com todas preenchidas tem oferta. */
 function offerOf(row: BankResultRow): Offer | null {
   const { monthlyRate, approvedAmountCents, installmentCents, totalCents, termMonths } = row;
   if (

@@ -8,7 +8,7 @@ interface MoneyInputProps extends Omit<React.ComponentProps<'input'>, 'value' | 
   onValueChange: (cents: number) => void;
 }
 
-/** Typed digits fill the value from the cents up: "350000" shows R$ 3.500,00. */
+/** Os dígitos digitados preenchem o valor a partir dos centavos: "350000" exibe R$ 3.500,00. */
 export function MoneyInput({ valueCents, onValueChange, ...props }: MoneyInputProps) {
   return (
     <Input

@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
 
 const BRAZIL_COUNTRY_CODE = '55';
 
-/** Unknown or malformed id: answer 404 with the not-found page, not a 500. */
+/** Id desconhecido ou malformado: responde 404 com a página not-found, em vez de 500. */
 async function loadDetails(rawId: string): Promise<AdminSimulationView> {
   try {
     return await getContainer().simulationService.getDetails(parseId(rawId));
@@ -54,7 +54,7 @@ interface HistoryEvent {
   tone: 'primary' | 'destructive' | 'muted';
 }
 
-/** Timeline built from timestamps we already store (there is no event table in the MVP). */
+/** Linha do tempo montada a partir dos horários já salvos (não há tabela de eventos no MVP). */
 function buildHistory(view: AdminSimulationView): HistoryEvent[] {
   const events: HistoryEvent[] = [
     {
@@ -123,7 +123,7 @@ export default async function AdminSimulationDetailPage({
   const view = await loadDetails((await params).id);
   const now = new Date();
 
-  // Configured base URL: the request Host header can be an internal address (proxy) or forged.
+  // URL base configurada: o header Host da requisição pode ser um endereço interno (proxy) ou forjado.
   const simulationUrl = new URL(`/simulacao/${view.id}`, getSimulatorEnv().PUBLIC_APP_URL);
   const firstName = view.customer.name.split(' ')[0] ?? view.customer.name;
   const whatsappText = `Olá, ${firstName}! Aqui é da Zelafin. Suas ofertas de consignado estão em ${simulationUrl.toString()}`;

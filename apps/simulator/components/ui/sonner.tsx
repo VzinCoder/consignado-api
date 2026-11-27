@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
-// Theme colors come from CSS variables in globals.css ([data-sonner-toaster]).
+// As cores do tema vêm das variáveis CSS em globals.css ([data-sonner-toaster]).
 const Toaster = (props: ToasterProps) => (
   <Sonner
     theme="light"

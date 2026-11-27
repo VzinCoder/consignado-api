@@ -34,7 +34,7 @@ export function SimulationView({ id }: { id: string }) {
   const query = useQuery({
     queryKey: ['simulation', id],
     queryFn: () => api.getSimulation(id),
-    // Polls only while some bank is still answering.
+    // Faz polling apenas enquanto algum banco ainda estiver respondendo.
     refetchInterval: (q) => (q.state.data?.status === 'PROCESSING' ? POLL_INTERVAL_MS : false),
   });
 
@@ -68,7 +68,7 @@ export function SimulationView({ id }: { id: string }) {
     );
   }
 
-  // A failed poll keeps the results already on screen; only a first load failure shows this card.
+  // Uma falha no polling mantém os resultados já exibidos; apenas falha no carregamento inicial mostra este cartão.
   if (!query.data) {
     const notFound = query.error instanceof ApiError && query.error.status === 404;
     return (
@@ -89,10 +89,10 @@ export function SimulationView({ id }: { id: string }) {
   const simulation = query.data;
   const expired = simulation.status === 'EXPIRED';
   const processing = simulation.status === 'PROCESSING';
-  // The API already sends approved offers from the best to the worst.
+  // A API já envia as ofertas aprovadas da melhor para a pior.
   const approved = simulation.results.filter((r) => r.status === 'APPROVED');
   const others = simulation.results.filter((r) => r.status !== 'APPROVED');
-  // The API does not send the salary: reuse the one typed in this tab, if any.
+  // A API não devolve o salário: reaproveita o valor digitado nesta aba, se houver.
   const editSimulation = () => {
     saveLoanTerms({
       salaryCents: loadLoanTerms()?.salaryCents ?? 0,
@@ -163,7 +163,7 @@ export function SimulationView({ id }: { id: string }) {
                   key={result.bankSlug}
                   result={result}
                   chosen={simulation.chosenBankSlug === result.bankSlug}
-                  // One choice per simulation: after it, the other offers no longer accept interest.
+                  // Uma escolha por simulação: depois dela, as demais ofertas não aceitam mais interesse.
                   disabled={
                     interest.isPending ||
                     (simulation.chosenBankSlug !== null &&

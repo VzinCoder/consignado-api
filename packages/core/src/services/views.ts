@@ -26,7 +26,7 @@ export interface BankResultView {
   isBest: boolean;
 }
 
-/** What the customer sees through the UUID link: no CPF, e-mail, phone or salary. */
+/** O que o cliente vê pelo link com UUID: sem CPF, e-mail, telefone ou salário. */
 export interface PublicSimulationView {
   id: string;
   customerFirstName: string;
@@ -84,7 +84,7 @@ export interface AdminSimulationSummary {
   chosenBank: BestOfferSummary | null;
   bestOffer: BestOfferSummary | null;
   counts: Record<BankResultStatus, number>;
-  /** Some bank is FAILED and the simulation is still valid: the team should retry it. */
+  /** Algum banco está FAILED e a simulação ainda vale: a equipe deve reconsultá-lo. */
   needsRetry: boolean;
 }
 
@@ -101,7 +101,7 @@ export class ViewBuilder {
     return this.names.get(slug) ?? slug;
   }
 
-  /** Approved offers first, best to worst; then the other banks in the providers order. */
+  /** Ofertas aprovadas primeiro, da melhor para a pior; depois os demais bancos na ordem dos providers. */
   private sorted(results: BankResult[]): BankResult[] {
     const position = (slug: string) => this.order.get(slug) ?? Number.MAX_SAFE_INTEGER;
     const approved = results.filter(isApproved).sort(compareOffers);

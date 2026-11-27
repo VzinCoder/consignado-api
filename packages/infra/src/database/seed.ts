@@ -1,6 +1,6 @@
 /**
- * Development seed: replaces all data with fictional customers and simulations.
- * Dates are relative to "now" so the demo always has fresh and expired offers.
+ * Seed de desenvolvimento: substitui todos os dados por clientes e simulações fictícias.
+ * As datas são relativas ao "agora" para que a demonstração tenha sempre ofertas válidas e expiradas.
  */
 import { priceInstallmentCents } from '@zelafin/core';
 import { sql } from 'drizzle-orm';
@@ -183,7 +183,7 @@ const SIMULATIONS: SeedSimulation[] = [
 
 async function seed(): Promise<void> {
   const env = getEnv();
-  // NODE_ENV defaults to development, so it alone is not enough: also require a local database.
+  // NODE_ENV tem padrão development, então não basta sozinho: também exige um banco local.
   if (env.NODE_ENV === 'production' || !isLocalDatabase(env.DATABASE_URL)) {
     throw new Error('O seed apaga todos os dados e só roda num banco local, fora de produção.');
   }

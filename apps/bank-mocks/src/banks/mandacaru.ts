@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { behave, evaluate, toCents, toReais, type BankProfile } from '../engine';
 import type { BankRouteDeps } from './types';
 
-/** Banco Mandacaru: traditional, lowest rate, most restrictive. Portuguese fields, rate as "1,65%". */
+/** Banco Mandacaru: tradicional, menor taxa, mais restritivo. Campos em português, taxa como "1,65%". */
 export const mandacaruProfile: BankProfile = {
   minMonthlyRate: 0.0155,
   maxMonthlyRate: 0.018,

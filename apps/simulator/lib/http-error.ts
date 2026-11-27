@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { formatMoney } from './format';
 
-/** The only place where errors become HTTP. Body: { error: { code, message, fields? } }. */
+/** Único lugar onde erros viram respostas HTTP. Corpo: { error: { code, message, fields? } }. */
 
 const VALIDATION_CODE = 'VALIDATION_ERROR';
 const MARGIN_CODE = 'MARGIN_EXCEEDED';
@@ -44,9 +44,9 @@ export function unauthorized(): Response {
 const stringRecord = z.record(z.string(), z.string());
 
 /**
- * Domain errors are recognized by their stable code, not by `instanceof`: the container survives
- * hot reload in `globalThis`, so its errors can come from another copy of @zelafin/core.
- * Only known codes count, so a library error that also has a `code` (e.g. Postgres) stays a 500.
+ * Erros de domínio são reconhecidos pelo seu código estável, não por `instanceof`: o container sobrevive
+ * ao hot reload em `globalThis`, então seus erros podem vir de outra cópia de @zelafin/core.
+ * Apenas códigos conhecidos contam, para que um erro de biblioteca que também tenha `code` (ex.: Postgres) continue como 500.
  */
 function domainError(error: unknown): { code: string; status: number; message: string } | null {
   if (!(error instanceof Error) || !('code' in error) || typeof error.code !== 'string') {

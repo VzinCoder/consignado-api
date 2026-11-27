@@ -1,4 +1,4 @@
-/** In-memory fakes for service tests (no Docker, no network). */
+/** Fakes em memória para testes de serviços (sem Docker, sem rede). */
 import type {
   BankProvider,
   BankResultRepository,

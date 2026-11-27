@@ -55,7 +55,7 @@ export interface SimulationServiceDeps {
 
 export interface AdminListFilter {
   status?: SimulationStatus;
-  /** true: only simulations with a FAILED bank to retry; false: only those without. */
+  /** true: apenas simulações com banco FAILED para reconsultar; false: apenas as sem falha. */
   needsRetry?: boolean;
   search?: string;
 }
@@ -63,10 +63,10 @@ export interface AdminListFilter {
 export interface AdminOverview {
   simulationsToday: number;
   simulationsYesterday: number;
-  /** Customers with a chosen offer (they stay leads even after the offer validity). */
+  /** Clientes com uma oferta escolhida (continuam como leads mesmo após a validade da oferta). */
   interestedCount: number;
   interestedToday: number;
-  /** Valid simulations with at least one FAILED bank. */
+  /** Simulações válidas com pelo menos um banco FAILED. */
   needsRetryCount: number;
   interested: AdminSimulationSummary[];
 }
@@ -80,7 +80,7 @@ export class SimulationService {
     this.views = new ViewBuilder(deps.providers);
   }
 
-  /** Lowest rate among all banks: if the installment doesn't fit even with it, no bank approves. */
+  /** Menor taxa entre todos os bancos: se a parcela não couber nem com ela, nenhum banco aprova. */
   private lowestRate(): number {
     return Math.min(...this.deps.providers.map((p) => p.minMonthlyRate));
   }
@@ -126,7 +126,7 @@ export class SimulationService {
     return { id: simulation.id };
   }
 
-  /** Creates a fresh simulation with the same customer and loan data (e.g. after expiration). */
+  /** Cria uma nova simulação com os mesmos dados de cliente e empréstimo (ex.: após expiração). */
   async renew(id: string): Promise<{ id: string }> {
     const previous = await this.deps.simulations.findById(id);
     if (!previous) throw new NotFoundError(SIMULATION_NOT_FOUND);
@@ -151,8 +151,8 @@ export class SimulationService {
   }
 
   /**
-   * Stuck PENDING results (server restarted mid-query) become FAILED before any read.
-   * Reading one simulation only touches its own results; admin lists release all of them.
+   * Resultados PENDING travados (servidor reiniciou no meio da consulta) viram FAILED antes de qualquer leitura.
+   * Ler uma simulação altera apenas os próprios resultados; listas do admin liberam todos.
    */
   private async releaseStalePending(simulationId?: string): Promise<Date> {
     const now = this.deps.clock.now();

@@ -1,7 +1,7 @@
 import { BankIntegrationError } from '@zelafin/core';
 import type { FetchFn } from '../../src/banks/http-client';
 
-/** Fake `fetch` implementations so provider tests never touch the network. */
+/** Implementações falsas de `fetch` para que testes de provider nunca acessem a rede. */
 export const BASE_URL = 'http://bank.test';
 export const TIMEOUT_MS = 20;
 
@@ -26,7 +26,7 @@ export const hanging: FetchFn = (_url, init) =>
 
 export const networkDown: FetchFn = () => Promise.reject(new TypeError('fetch failed'));
 
-/** Resolves with the technical reason of the expected BankIntegrationError. */
+/** Resolve com o motivo técnico do BankIntegrationError esperado. */
 export async function failureReason(promise: Promise<unknown>): Promise<string> {
   const error = await promise.then(
     () => null,

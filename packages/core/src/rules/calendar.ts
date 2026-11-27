@@ -1,11 +1,11 @@
-/** "Today" for the business is the day in Brazil, wherever the server runs (often UTC). */
+/** "Hoje" para o negócio é o dia no Brasil, onde quer que o servidor rode (geralmente UTC). */
 export const BUSINESS_TIME_ZONE = 'America/Sao_Paulo';
 
 const MS_PER_SECOND = 1000;
 
 /**
- * Start of the calendar day of `now` in `timeZone`, as an absolute instant.
- * Uses the zone offset at `now` (Brazil has no daylight saving time since 2019).
+ * Início do dia de calendário de `now` em `timeZone`, como um instante absoluto.
+ * Usa o deslocamento do fuso em `now` (o Brasil não tem horário de verão desde 2019).
  */
 export function startOfDay(now: Date, timeZone: string): Date {
   const parts = new Intl.DateTimeFormat('en-US', {

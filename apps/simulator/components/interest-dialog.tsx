@@ -20,7 +20,7 @@ interface Props {
   onConfirm: () => void;
 }
 
-/** Screen 06: confirms the chosen offer before registering the interest. */
+/** Tela 06: confirma a oferta escolhida antes de registrar o interesse. */
 export function InterestDialog({ result, pending, onCancel, onConfirm }: Props) {
   const offer = result?.offer;
   return (

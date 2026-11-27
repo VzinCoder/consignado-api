@@ -18,7 +18,7 @@ export interface CustomerInput {
 }
 
 export interface CustomerRepository {
-  /** Creates the customer or updates its contact data when the CPF already exists. */
+  /** Cria o cliente ou atualiza seus dados de contato quando o CPF já existe. */
   upsertByCpf(input: CustomerInput): Promise<Customer>;
 }
 
@@ -34,7 +34,7 @@ export interface NewSimulation {
 }
 
 export interface SimulationListFilter {
-  /** Matches customer name (case-insensitive), or CPF or phone digits. */
+  /** Busca pelo nome do cliente (sem diferenciar maiúsculas/minúsculas), ou dígitos de CPF ou telefone. */
   search?: string;
   createdFrom?: Date;
   onlyWithInterest?: boolean;
@@ -42,24 +42,24 @@ export interface SimulationListFilter {
 }
 
 export interface SimulationRepository {
-  /** Creates the simulation and one PENDING result per bank slug, atomically. */
+  /** Cria a simulação e um resultado PENDING por slug de banco, de forma atômica. */
   create(input: NewSimulation, bankSlugs: string[]): Promise<SimulationWithResults>;
   findById(id: string): Promise<SimulationWithResults | null>;
   findDetails(id: string): Promise<SimulationDetails | null>;
-  /** Most recent first. */
+  /** Mais recentes primeiro. */
   list(filter: SimulationListFilter): Promise<SimulationDetails[]>;
   setInterest(id: string, bankSlug: string, at: Date): Promise<Simulation>;
 }
 
 export interface BankResultRepository {
   findById(id: string): Promise<BankResult | null>;
-  /** Stores the outcome only if the result is still PENDING. Returns null otherwise. */
+  /** Grava o resultado somente se ainda estiver PENDING. Caso contrário, retorna null. */
   completeIfPending(id: string, completion: BankResultCompletion): Promise<BankResult | null>;
-  /** Moves a FAILED result back to PENDING. Returns null if it was not FAILED. */
+  /** Volta um resultado FAILED para PENDING. Retorna null se não estava FAILED. */
   restartIfFailed(id: string, startedAt: Date): Promise<BankResult | null>;
   /**
-   * Marks PENDING results started before `startedBefore` as FAILED (only those of `simulationId`
-   * when given). Returns how many.
+   * Marca resultados PENDING iniciados antes de `startedBefore` como FAILED (somente os de `simulationId`
+   * quando informado). Retorna quantos foram atualizados.
    */
   failStalePending(
     startedBefore: Date,
@@ -72,9 +72,9 @@ export interface BankResultRepository {
 export interface BankProvider {
   readonly slug: string;
   readonly name: string;
-  /** Lowest monthly rate this bank offers; used by the margin pre-filter. */
+  /** Menor taxa mensal que este banco oferece; usada no pré-filtro de margem. */
   readonly minMonthlyRate: number;
-  /** Throws BankIntegrationError on technical failure (timeout, network, 5xx, bad contract). */
+  /** Lança BankIntegrationError em falha técnica (timeout, rede, 5xx, resposta fora do contrato). */
   simulate(request: BankQuoteRequest): Promise<BankQuote>;
 }
 
