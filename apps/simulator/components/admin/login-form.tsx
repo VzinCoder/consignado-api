@@ -1,14 +1,12 @@
 'use client';
 
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Field, inputClass } from '@/components/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export function LoginForm() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,13 +26,13 @@ export function LoginForm() {
         setError(
           response.status === 401 ? 'E-mail ou senha incorretos.' : 'Não foi possível entrar.',
         );
+        setPending(false);
         return;
       }
-      router.replace('/admin');
-      router.refresh();
+      // Navegação completa limpa o Router Cache e evita corrida com o redirect do servidor.
+      window.location.replace('/admin');
     } catch {
       setError('Não foi possível entrar. Tente novamente.');
-    } finally {
       setPending(false);
     }
   }

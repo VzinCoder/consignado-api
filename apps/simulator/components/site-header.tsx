@@ -23,7 +23,7 @@ export function SiteHeader() {
           </Button>
           <Button variant="ghost" asChild>
             {/* Acesso exclusivo da equipe: clientes acessam suas ofertas pelo link que recebem. */}
-            <Link href="/admin">
+            <Link href="/admin" prefetch={false}>
               <User /> Área da equipe
             </Link>
           </Button>

@@ -3,7 +3,8 @@
 import { CirclePlus, FileText, LayoutDashboard, LogOut, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { Avatar } from '@/components/admin/avatar';
 import { cn } from '@/lib/utils';
 
@@ -25,12 +26,16 @@ const isActive = (pathname: string, href: string) =>
 
 export function AdminSidebar({ username }: { username: string }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.replace('/admin/login');
-    router.refresh();
+    setLoggingOut(true);
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } finally {
+      // Navegação completa descarta o Router Cache e os dados do painel em memória.
+      window.location.replace('/admin/login');
+    }
   }
 
   return (
@@ -74,9 +79,10 @@ export function AdminSidebar({ username }: { username: string }) {
         <button
           type="button"
           onClick={() => void logout()}
+          disabled={loggingOut}
           aria-label="Sair"
           title="Sair"
-          className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
         >
           <LogOut className="size-4" />
         </button>
