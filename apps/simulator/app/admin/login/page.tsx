@@ -20,8 +20,8 @@ export default async function AdminLoginPage() {
             <Image
               src="/logo.png"
               alt="Zelafin"
-              width={126}
-              height={28}
+              width={432}
+              height={96}
               className="h-7 w-auto"
               priority
             />

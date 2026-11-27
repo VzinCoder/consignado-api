@@ -11,8 +11,8 @@ export function SiteHeader() {
           <Image
             src="/logo.png"
             alt="Zelafin"
-            width={144}
-            height={32}
+            width={432}
+            height={96}
             className="h-8 w-auto"
             priority
           />
