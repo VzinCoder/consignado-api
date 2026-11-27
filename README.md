@@ -1,154 +1,124 @@
-# Zelafin — simulador de crédito consignado
+# Zelafin — Simulador de Empréstimo Consignado
 
-O cliente informa salário, valor e prazo, o sistema consulta **quatro bancos fictícios** em paralelo e
-mostra a resposta de cada um, destacando a oferta de **menor custo total**. A equipe acompanha tudo numa
-**área administrativa**: vê quem escolheu uma oferta, fala com o cliente pelo WhatsApp e reconsulta bancos
-que estavam fora do ar.
+MVP de um simulador de crédito consignado feito para **consultar e interpretar respostas de diferentes bancos**, lidando com formatos distintos, demora e instabilidade.
 
-O foco do projeto é consumir e interpretar respostas de serviços de terceiros que a empresa não controla
-(cada banco tem um contrato diferente, alguns são lentos, um deles devolve erro com HTTP 200), pensando em
-quem espera a resposta (o cliente) e em quem depende dela (a empresa).
+O cliente informa salário, valor e prazo, e o sistema consulta **quatro bancos fictícios em paralelo**, mostrando o resultado de cada um e destacando a oferta de **menor valor total**. Do outro lado, a equipe acompanha tudo em um **painel administrativo**: vê quem escolheu uma oferta, fala com o cliente pelo WhatsApp e pode reconsultar bancos que estavam fora do ar.
+
+---
 
 ## Como rodar
 
-Requisitos: **Node 24.21.0**, **pnpm 12.18.0** e **Docker**.
+Você precisa ter **Node.js `24.21.0`**, **pnpm `12.18.0`** e **Docker** instalados.
 
 ```bash
-cp .env.example .env   # valores fictícios que funcionam localmente
+cp .env.example .env   # configurações prontas para rodar localmente
 pnpm install
-pnpm infra:up          # Postgres em localhost:5432
-pnpm db:migrate
-pnpm db:seed           # clientes e simulações de exemplo (inclui ofertas expiradas)
-pnpm dev               # simulador em :3000 e bancos fictícios em :4000
+pnpm infra:up          # sobe o PostgreSQL em localhost:5432
+pnpm db:migrate        # cria as tabelas no banco
+pnpm db:seed           # insere clientes e simulações de exemplo
+pnpm dev               # sobe o simulador (:3000) e os bancos fictícios (:4000)
 ```
 
-| O quê            | Onde                                                                   |
+| Onde             | Acesso                                                                 |
 | ---------------- | ---------------------------------------------------------------------- |
 | Site do cliente  | http://localhost:3000                                                  |
 | Área da equipe   | http://localhost:3000/admin — `admin@zelafin.com.br` / `zelafin-admin` |
 | Bancos fictícios | http://localhost:4000/health                                           |
 
-**Roteiro de demonstração.** O último dígito do CPF força o comportamento de todos os bancos:
+### Roteiro rápido para testar
 
-| CPF                        | Resultado                                                                   |
-| -------------------------- | --------------------------------------------------------------------------- |
-| `529.982.247-25`           | Fluxo normal (a Carcará falha em ~20% das vezes, para mostrar a reconsulta) |
-| `529.982.241-30` (final 0) | Todos os bancos recusam                                                     |
-| `529.982.240-59` (final 9) | Todos os bancos ficam indisponíveis                                         |
-| `529.982.258-88` (final 8) | Os bancos demoram 10 s e estouram o timeout de 5 s                          |
+O último dígito do CPF força o comportamento dos bancos para facilitar os testes (use o CNPJ de empregador `11.222.333/0001-81`):
 
-### Scripts
+| CPF                        | O que acontece                                                          |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `390.533.451-83`           | Fluxo normal (a Carcará falha em ~20% das vezes para testar reconsulta) |
+| `529.982.241-30` (final 0) | Todos os bancos recusam                                                 |
+| `529.982.240-59` (final 9) | Todos os bancos retornam erro e ficam indisponíveis                     |
+| `529.982.258-88` (final 8) | Os bancos demoram 10 s e estouram o timeout de 5 s                      |
 
-| Script                                               | O que faz                                                                         |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `pnpm dev`                                           | Sobe simulador e bancos fictícios com hot reload                                  |
-| `pnpm test`                                          | Testes de todos os pacotes (os de integração criam e usam o banco `zelafin_test`) |
-| `pnpm lint` / `pnpm typecheck` / `pnpm format:check` | Qualidade de código                                                               |
-| `pnpm build`                                         | Build de produção do simulador                                                    |
-| `pnpm db:generate` / `db:migrate` / `db:seed`        | Migrations (Drizzle) e dados de exemplo                                           |
-| `pnpm infra:up` / `infra:down`                       | Sobe e derruba o Postgres (os dados ficam no volume)                              |
+---
 
-## Arquitetura
+## Como o projeto está organizado
 
-Monorepo com pnpm workspaces e Turborepo, em **arquitetura hexagonal simplificada**:
+O repositório é um monorepo (pnpm + Turborepo) dividido em 4 partes com responsabilidades bem separadas:
 
-```
+```text
 apps/
-  simulator/     Next.js: site do cliente, área da equipe e API (route handlers)
-  bank-mocks/    Fastify: os 4 bancos fictícios (representa sistemas de terceiros)
+  simulator/     Next.js: telas do cliente, painel da equipe e rotas de API
+  bank-mocks/    Fastify: servidor separado que simula os 4 bancos externos
 packages/
-  core/          Regras de negócio puras: modelos, regras, interfaces (portas) e services
-  infra/         Adaptadores: Postgres (Drizzle), clientes HTTP dos bancos, logger, env, container
+  core/          Regras de negócio puras (sem depender de banco, HTTP ou framework)
+  infra/         Conexão com PostgreSQL (Drizzle), chamadas HTTP aos bancos, logs e container
 ```
 
+```text
+ navegador ──► simulator (Next.js) ──► core (regras e serviços)
+                                          │
+                                          ▼
+                               infra (Postgres + HTTP) ──► bank-mocks (:4000)
 ```
- navegador ──► simulator (rotas Next) ──► core: SimulationService / BankQueryService
-                                              │  depende só de interfaces
-                                              ▼
-                                   infra: repositórios Drizzle ──► Postgres
-                                          providers dos bancos ──► bank-mocks (HTTP)
-```
 
-- **O `core` não depende de nada** (o `package.json` dele não tem dependências). Banco de dados, bancos
-  e logger ficam atrás de interfaces do core e são implementados no `infra`.
-- **Só o `infra/container.ts` monta as implementações.** Banco novo = rota no `bank-mocks` + provider
-  no `infra` + uma linha no container.
-- **Os apps não têm regra de negócio:** validam o formato da entrada (Zod), chamam um service e
-  convertem o resultado (ou o erro, em `lib/http-error.ts`) para HTTP.
-- **O `bank-mocks` não importa nada interno**: ele faz o papel dos sistemas externos.
+- O **`core`** não importa nada de banco nem de HTTP; ele só define interfaces e aplica as regras (margem, parcela, CPF/CNPJ, melhor oferta).
+- O **`infra`** implementa essas interfaces e monta tudo em um único lugar (`packages/infra/src/container.ts`). Para adicionar um banco novo, basta criar o adaptador dele e registrar uma linha no container.
+- O **`bank-mocks`** roda separado e não importa nenhum pacote interno, exatamente como APIs de terceiros na vida real.
 
-### Os quatro bancos
+### Os quatro bancos fictícios
 
-Cada banco tem um contrato próprio; o provider correspondente traduz a resposta para o formato do core
-e valida tudo com Zod (resposta fora do contrato vira falha técnica, nunca uma oferta errada).
+Cada banco responde em um formato diferente, e cada um tem um adaptador no `infra` que valida o retorno com Zod e traduz para o formato padrão do `core`:
 
-| Banco              | Contrato                                                  | Particularidade             |
-| ------------------ | --------------------------------------------------------- | --------------------------- |
-| Ipê Bank           | JSON em inglês, taxa decimal, valores em reais            | Rápido e estável            |
-| Banco Mandacaru    | Campos em português, taxa como texto (`"1,65%"`)          | Menor taxa, mais restritivo |
-| Jangada Crédito    | Envelope `{ data, meta }`, centavos, taxa em basis points | Mais lento                  |
-| Carcará Financeira | Sempre HTTP 200; o erro vem no corpo (`sucesso: false`)   | Instável                    |
+| Banco              | Formato da resposta                                           | Comportamento               |
+| ------------------ | ------------------------------------------------------------- | --------------------------- |
+| Ipê Bank           | JSON em inglês, valores em reais, taxa decimal                | Rápido e estável            |
+| Banco Mandacaru    | Campos em português, taxa em texto (`"1,65%"`)                | Menor taxa, mais restritivo |
+| Jangada Crédito    | Estrutura `{ data, meta }`, valores em centavos               | Mais lento (~2,5 s)         |
+| Carcará Financeira | Sempre responde HTTP 200; erro vem no JSON (`sucesso: false`) | Instável (~20% de falha)    |
 
-### Fluxo de uma simulação
+---
 
-1. A Landing checa a **margem consignável** (parcela até 35% do salário) antes de pedir dados pessoais.
-   O pré-filtro usa a menor taxa entre os bancos: se nem assim couber, sugere o valor máximo.
-2. `POST /api/simulations` valida tudo no core, cria a simulação com um resultado `PENDING` por banco e
-   responde `201`. As consultas começam **logo depois da resposta**, no próprio servidor (`after()` do
-   Next), em paralelo e com timeout de 5 s cada.
-3. A tela do cliente faz polling a cada 2 s enquanto houver banco `PENDING`. Cada banco termina como
-   `APPROVED`, `REJECTED` ou `FAILED` (timeout, rede, 5xx, erro no corpo ou resposta fora do contrato).
-4. Ofertas valem 72 h. O cliente registra interesse em **uma** oferta; a equipe vê o lead na visão geral
-   (mesmo depois da validade) e pode reconsultar bancos `FAILED` enquanto a simulação vale.
+## Decisões técnicas
 
-## Decisões principais
+- **Regras separadas da infraestrutura:** o `core` não conhece Next.js, Drizzle nem o formato de cada banco. Isso deixa a regra de negócio limpa e fácil de manter mesmo quando a API de um banco muda.
+- **Dinheiro sempre em centavos:** todos os valores são salvos e calculados como números inteiros (ex.: R$ 3.500,00 = `350000`) para evitar erros de arredondamento de número quebrado (`float`) no cálculo das parcelas.
+- **Consultas em paralelo e sem travar a tela:** quando o cliente envia a simulação, a API salva os dados, responde `201` na hora e dispara as 4 consultas bancárias em paralelo no servidor (`after()` do Next.js) com timeout de 5 s cada. A tela vai buscando novidades a cada 2 s e exibindo cada banco conforme ele responde.
+- **Status calculado na leitura:** não existe uma coluna fixa de "status" na tabela de simulações. O status (`Em análise`, `Respondida`, `Interessado`, `Expirada`) é calculado a partir das respostas dos bancos e da data de validade — assim nada fica fora de sincronia.
+- **Não confiar no que vem de fora:** toda resposta dos bancos passa por validação com Zod. Se um banco devolver HTTP 200 com erro no corpo (como a Carcará) ou mudar um campo sem aviso, o sistema trata como falha técnica em vez de mostrar uma oferta errada.
+- **Melhor oferta só entre propostas equivalentes:** o destaque de "Menor total" compara apenas ofertas aprovadas com o mesmo valor e prazo pedidos pelo cliente, evitando comparações injustas.
+- **Cuidado com dados do cliente:** o salário não vai na URL (fica salvo só na aba via `sessionStorage`), o link público da simulação usa UUID e não expõe CPF, e-mail, telefone ou salário, e o logger esconde esses campos automaticamente.
+- **Login simples e seguro no painel:** o acesso do admin usa um cookie `httpOnly` assinado com HMAC (usando Web Crypto nativo, sem biblioteca extra) e protegido tanto no `proxy.ts` quanto nas rotas do servidor.
 
-| Decisão                                                            | Por quê                                                                            |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| Status da simulação calculado na leitura, sem coluna               | Uma única fonte de verdade (os resultados por banco); nada fica dessincronizado    |
-| Atualizações condicionais (`completeIfPending`, `restartIfFailed`) | Duas consultas ao mesmo banco nunca sobrescrevem uma à outra                       |
-| `PENDING` antigo vira `FAILED` ao ler a simulação                  | Se o servidor reiniciar no meio de uma consulta, a tela não fica presa para sempre |
-| Melhor oferta só entre aprovações com o valor e o prazo pedidos    | Comparar total pago de valores diferentes enganaria o cliente                      |
-| Dinheiro em centavos inteiros, taxa como decimal mensal            | Sem erro de arredondamento de ponto flutuante                                      |
-| Erros de negócio com `code` estável                                | A API responde sempre `{ error: { code, message, fields? } }`                      |
-| Link público sem CPF, e-mail, telefone ou salário                  | O UUID do link é o acesso do cliente; salário não vai na URL                       |
-| Logs com redação de dados pessoais                                 | CPF, e-mail, telefone, nome e salário nunca aparecem nos logs                      |
-| Sessão do admin com HMAC (Web Crypto) em cookie `httpOnly`         | Um único admin fixo; sem dependência extra                                         |
-| "Hoje" no fuso `America/Sao_Paulo`                                 | O servidor costuma rodar em UTC                                                    |
-
-## Testes
-
-Vitest, com uma pasta `tests/` por pacote espelhando a `src/`:
-
-- **core:** regras (CPF/CNPJ, Price, margem, status, melhor oferta) e services com fakes em memória.
-- **infra:** providers dos 4 bancos (resposta válida, recusa, fora do contrato, HTTP 503 e timeout),
-  env, logger e, em `tests/integration/`, os repositórios contra um Postgres real no banco `_test`.
-- **bank-mocks:** contrato de cada banco via `inject` do Fastify.
-- **simulator:** formatação, conversão de erros para HTTP, sessão e env.
-
-O CI (GitHub Actions) roda instalação congelada, Prettier, ESLint, typecheck, build e testes com Postgres.
+---
 
 ## Limitações conhecidas
 
-- As consultas rodam no próprio servidor web, sem fila: um deploy no meio da consulta deixa o resultado
-  `PENDING` até virar `FAILED` por tempo (e a equipe reconsulta).
-- Sem retry automático: a reconsulta é manual, pelo admin.
-- A lista e os números do admin olham as 200 simulações mais recentes (filtros em memória).
-- Um único admin fixo, por variável de ambiente; o cliente acessa só pelo link.
-- O cadastro do cliente é atualizado pelo CPF a cada simulação (o contato mais recente vence).
-- Bancos fictícios com regras simplificadas; margem calculada só pelo salário informado.
+- As consultas aos bancos rodam no próprio servidor web (`after()`), sem fila: se o servidor reiniciar no meio de uma consulta, o banco fica como pendente até expirar o tempo limite (~35 s) e virar indisponível para a equipe reconsultar.
+- Não há retry automático quando um banco falha; hoje a reconsulta é feita manualmente no painel.
+- A listagem e os números do painel olham as 200 simulações mais recentes.
+- Existe apenas um usuário administrador configurado por variáveis de ambiente.
+- A margem consignável de 35% é calculada sobre o salário informado pelo cliente, sem consulta a bases externas reais.
 
-## Próximos passos (propostas)
+---
 
-| Problema                                     | Proposta                                                          | Por quê                                                      |
-| -------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------ |
-| Consultas presas ao servidor web             | Fila com Redis + BullMQ e um worker, um job por banco             | Deploy e picos não derrubam consultas; o web só enfileira    |
-| Falha passageira vira `FAILED` direto        | Retry automático com backoff e chave de idempotência              | Menos trabalho manual e nenhuma consulta duplicada           |
-| Banco fora do ar continua recebendo chamadas | Circuit breaker por banco                                         | Responde rápido ao cliente e testa a volta aos poucos        |
-| Taxa mínima fixa no código                   | Taxas vigentes consultadas e guardadas em cache (fail-open)       | O pré-filtro não bloqueia pedido viável quando os juros caem |
-| Pouca visibilidade dos bancos                | Métricas de aprovação, latência e falhas por banco; correlationId | Saber qual parceiro está piorando antes do cliente reclamar  |
-| Contratos podem mudar sem aviso              | Testes de contrato com os bancos                                  | Quebra aparece no CI, não em produção                        |
-| Lista do admin limitada a 200                | Paginação e contagens no SQL                                      | Números certos com qualquer volume                           |
-| Margem estimada pelo salário                 | Margem real via eSocial, Dataprev ou convênio                     | Menos recusas depois da escolha                              |
-| Contratação fora do sistema                  | Proposta e contratação com webhooks dos bancos                    | Fecha o ciclo sem depender do WhatsApp                       |
-| Dados e acesso                               | Consentimento LGPD, vários usuários no admin, rate limit          | Requisitos para operar de verdade                            |
+## Propostas
+
+Pensando tanto no **cliente** (que preenche os dados e espera as ofertas) quanto na **operação** (que lida com bancos externos fora do controle da empresa), separei o que já foi implementado neste MVP do que eu priorizaria em seguida.
+
+### Implementadas neste MVP
+
+| Problema                                                                                                                                  | Proposta                                                                                                                                                                     | Por quê                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| O cliente podia preencher todos os dados pessoais e disparar 4 chamadas aos bancos mesmo pedindo um valor que já estoura a margem de 35%. | Pré-filtro de margem logo na tela inicial, usando a menor taxa disponível e já sugerindo o valor máximo possível.                                                            | Evita frustração para o cliente, deixa claro o limite desde o começo e economiza chamadas desnecessárias aos bancos.  |
+| Bancos demoram tempos diferentes e podem falhar; esperar todos de forma síncrona travaria a tela ou derrubaria a simulação toda.          | Criar a simulação rápido, consultar os 4 bancos em paralelo com timeout de 5 s e atualizar a tela aos poucos via polling.                                                    | O cliente já vê as primeiras ofertas em poucos segundos e a queda de um banco não atrapalha os outros.                |
+| Taxas de crédito mudam com o tempo e o cliente pode voltar dias depois ou tentar escolher mais de uma oferta.                             | Definir validade de 72 h, permitir escolher apenas uma oferta por simulação e oferecer um botão de renovação com 1 clique quando expirar.                                    | Evita prometer condição vencida, evita atendimento duplicado e facilita refazer a simulação sem digitar tudo de novo. |
+| Sem um painel interno, a equipe não sabe quem escolheu uma oferta nem consegue recuperar simulações de bancos que caíram.                 | Criar a área `/admin` com resumo do dia, lista com busca e filtros, link pronto para WhatsApp, nova simulação pelo atendimento e botão para reconsultar bancos que falharam. | Permite que o time comercial atenda os interessados rápido e recupere propostas de bancos que voltaram ao ar.         |
+
+### Planejadas (em ordem de prioridade)
+
+Se eu tivesse **mais uma semana** para evoluir o produto, seguiria esta ordem:
+
+| Prioridade | Problema                                                                                                                     | Proposta                                                                             | Por quê                                                                                                                        |
+| :--------: | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+|   **1**    | Consultas presas ao servidor web podem ser interrompidas em um deploy ou em momentos de pico.                                | Colocar uma fila com **Redis + BullMQ** e um worker separado (um job por banco).     | Primeira melhoria que eu faria: o site só enfileira e responde rápido, e as consultas continuam rodando mesmo durante deploys. |
+|   **2**    | Uma instabilidade rápida de um banco já marca a resposta como falha e exige ação manual da equipe.                           | Adicionar **retry automático** com espera progressiva (_backoff_) no worker.         | Recupera falhas passageiras sozinho e diminui o trabalho manual do time de atendimento.                                        |
+|   **3**    | Se um banco ficar fora do ar por vários minutos, o sistema continua tentando chamá-lo e esperando o timeout de 5 s toda vez. | Implementar um **circuit breaker** por banco.                                        | Para de insistir em um banco que já sabemos estar caído, responde mais rápido ao cliente e testa a volta dele aos poucos.      |
+|   **4**    | A lista do painel hoje carrega no máximo as 200 simulações mais recentes.                                                    | Fazer paginação e contagens direto no banco (SQL).                                   | Mantém o painel rápido e os números exatos conforme o volume de clientes crescer.                                              |
+|   **5**    | A margem é baseada só no salário digitado e o fechamento acontece fora do site (no WhatsApp).                                | Integrar consulta de margem real e acompanhar a contratação por webhooks dos bancos. | Reduz recusas depois que o cliente escolhe a oferta e automatiza o acompanhamento até o contrato fechado.                      |
